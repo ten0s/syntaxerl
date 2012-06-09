@@ -40,6 +40,75 @@ Syntax checker for Erlang (0.0.1)
 
 ### Emacs
 
+Flymake
+-------
+
+<pre>
+<code>
+;;;----------------------------------------
+;;; erlang-mode
+;;;----------------------------------------
+
+(setq erlang-root-dir "/opt/otp-r15b01/lib/erlang")
+(setq load-path (cons (car (file-expand-wildcards (concat erlang-root-dir "/lib/tools-*/emacs"))) load-path))
+(setq erlang-electric-commands nil)
+(require 'erlang-start)
+
+(add-hook 'erlang-mode-hook
+  '(lambda()
+	 (imenu-add-to-menubar "Imenu")))
+
+; define auto erlang mode for these files/extensions.
+(add-to-list 'auto-mode-alist '(".*\\.app\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*app\\.src\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*\\.config\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*\\.rel\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*\\.script\\'" . erlang-mode))
+
+; add include directory to default compile path.
+(defvar erlang-compile-extra-opts
+  '(bin_opt_info debug_info (i . "../include") (i . "../deps") (i . "../../") (i . "../../../deps")))
+
+; define where put beam files.
+(setq erlang-compile-outdir "../ebin")
+
+;;;----------------------------------------
+;;; flymake
+;;;----------------------------------------
+
+(require 'flymake)
+(setq flymake-log-level 3)
+
+(defun flymake-compile-script-path (path)
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+					 'flymake-create-temp-inplace))
+		 (local-file (file-relative-name
+					  temp-file
+					  (file-name-directory buffer-file-name))))
+	(list path (list local-file))))
+
+(defun flymake-syntaxerl ()
+  (flymake-compile-script-path "~/bin/syntaxerl"))
+
+(add-hook 'erlang-mode-hook
+  '(lambda()
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.erl\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.hrl\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.app\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.app.src\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.config\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.rel\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.script\\'" flymake-syntaxerl))
+
+	 ;; should be the last.
+	 (flymake-mode 1)
+))
+</code>
+<pre>
+
+Erlang-flymake
+--------------
+
 Coming soon
 
 ### Vim

@@ -43,7 +43,7 @@ Syntax checker for Erlang (0.0.1)
 Flymake
 -------
 
-<code>
+```elisp
 ;;;----------------------------------------
 ;;; erlang-mode
 ;;;----------------------------------------
@@ -102,7 +102,7 @@ Flymake
 	 ;; should be the last.
 	 (flymake-mode 1)
 ))
-</code>
+```
 
 Erlang-flymake
 --------------

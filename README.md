@@ -43,7 +43,6 @@ Syntax checker for Erlang (0.0.1)
 Flymake
 -------
 
-<pre>
 <code>
 ;;;----------------------------------------
 ;;; erlang-mode
@@ -104,7 +103,6 @@ Flymake
 	 (flymake-mode 1)
 ))
 </code>
-<pre>
 
 Erlang-flymake
 --------------

@@ -40,8 +40,7 @@ Syntax checker for Erlang (0.0.1)
 
 ### Emacs
 
-Flymake
--------
+#### Flymake
 
 ```elisp
 ;;;----------------------------------------
@@ -104,8 +103,7 @@ Flymake
 ))
 ```
 
-Erlang-flymake
---------------
+#### Erlang-flymake
 
 Coming soon
 

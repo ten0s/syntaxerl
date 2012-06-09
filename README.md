@@ -16,9 +16,11 @@ To build SyntaxErl you will need a working installation of Erlang, git, and GNU 
 
 #### Building SyntaxErl
 
+```sh
 $ git clone git://github.com/ten0s/syntaxerl.git
 $ cd syntaxerl
 $ make
+```
 
 After performing the steps above in the current working directory you now
 have a script called `syntaxerl'. Place this script anywhere in your path.
@@ -28,13 +30,19 @@ Usage
 
 ### Command line
 
+```sh
 $ syntaxerl
 Usage: syntaxerl [-d] filename
 Syntax checker for Erlang (0.0.1)
 
   -d, --debug    Enable debug output
+```
 
 ### Emacs
 
+Coming soon
+
 ### Vim
+
+Coming soon
 

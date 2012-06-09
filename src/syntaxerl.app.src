@@ -1,0 +1,16 @@
+{application, syntaxerl, [
+  {description, "Syntax checker for Erlang"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [
+	kernel,
+    stdlib
+  ]},
+  {env, [
+	{handlers, [
+		{"\.erl", syntaxerl_erl},
+		{"\.hrl", syntaxerl_hrl},
+		{"\.*",   syntaxerl_terms}
+	]}
+ ]}
+]}.

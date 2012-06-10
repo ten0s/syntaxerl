@@ -111,9 +111,3 @@ Coming soon
 
 Coming soon
 
-
-
-
-http://www.oreillynet.com/onlamp/blog/2005/07/bsd_best_license_for_it_an_int.html
-http://stackoverflow.com/questions/40100/apache-licence-vs-bsd-vs-mit
-http://www.zdnet.com/blog/burnette/google-says-no-to-license-proliferation/192

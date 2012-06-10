@@ -1,7 +1,7 @@
 SyntaxErl
 =========
 
-SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently supports erlang source files (.erl), erlang header files (.hrl), and erlang terms (.config, ...). Its main purpose is to be used in tools like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's syntastic https://github.com/scrooloose/syntastic.
+SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently supports erlang source files (.erl), erlang header files (.hrl), and erlang terms (.config, ...). Its main purpose is to be used in tools like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's syntastic https://github.com/scrooloose/syntastic. SyntaxErl uses the Rebar https://github.com/basho/rebar config file to determine correct deps and libs paths. Sinan https://github.com/erlware/sinan and Emakefile http://www.erlang.org/doc/man/make.html support are considered to be implemented. Currently compile options are hardcoded, but the Rebar config will be used soon.
 
 Building
 --------
@@ -111,3 +111,9 @@ Coming soon
 
 Coming soon
 
+
+
+
+http://www.oreillynet.com/onlamp/blog/2005/07/bsd_best_license_for_it_an_int.html
+http://stackoverflow.com/questions/40100/apache-licence-vs-bsd-vs-mit
+http://www.zdnet.com/blog/burnette/google-says-no-to-license-proliferation/192

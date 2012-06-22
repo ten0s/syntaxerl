@@ -10,6 +10,12 @@ behaviour_info(_) ->
 	undefined.
 
 -spec main([string()]) -> no_return().
+main([""]) ->
+	usage();
+main(["-h"]) ->
+	usage();
+main(["--help"]) ->
+	usage();
 main(["-d"]) ->
 	usage();
 main(["--debug"]) ->
@@ -28,12 +34,10 @@ main(_) ->
     usage().
 
 check_syntax(FileName, Debug) ->
-	Handlers = [
-		{".erl", syntaxerl_erl},
-		{".hrl", syntaxerl_hrl}
-	],
-	Ext = filename:extension(FileName),
-	Handler = proplists:get_value(Ext, Handlers, syntaxerl_terms),
+	ScriptName = escript:script_name(),
+	Handlers = handlers(ScriptName),
+	syntaxerl_logger:debug(Debug, "Handlers: ~p", [Handlers]),
+	Handler = get_handler(FileName, Handlers),
 	syntaxerl_logger:debug(Debug, "Selected handler: ~p", [Handler]),
 	case Handler:check_syntax(FileName, Debug) of
 		{ok, Issues} ->
@@ -44,17 +48,19 @@ check_syntax(FileName, Debug) ->
 
 usage() ->
 	ScriptName = escript:script_name(),
-    io:format("Usage: ~s [-d] filename~n", [filename:basename(ScriptName)]),
+	BaseName = filename:basename(ScriptName),
+    io:format("Usage: ~s [-d] filename~n", [BaseName]),
+	io:format("Usage: ~s [-h]~n", [BaseName]),
 	case description_vsn(ScriptName) of
 		{Description, Vsn} ->
 			io:format("~s (~s)~n~n", [Description, Vsn]);
 		_ ->
 			io:format("~n")
 	end,
-	io:format("  -d, --debug    Enable debug output~n~n"),
-    halt(1).
+	io:format("  -d, --debug    Enable debug output~n"),
+	io:format("  -h, --help     Show this message~n~n").
 
-description_vsn(ScriptName) ->
+script_options(ScriptName) ->
 	{ok, Sections} = escript:extract(ScriptName, []),
 	ZipArchive = proplists:get_value(archive, Sections),
 	AppName = lists:flatten(io_lib:format("~p.app", [?MODULE])),
@@ -62,9 +68,33 @@ description_vsn(ScriptName) ->
 		{ok, [{AppName, Binary}]} ->
 			{ok, Tokens, _} = erl_scan:string(binary_to_list(Binary)),
 		    {ok, {application, ?MODULE, Options}} = erl_parse:parse_term(Tokens),
-			Description = proplists:get_value(description, Options),
-			Vsn = proplists:get_value(vsn, Options),
-			{Description, Vsn};
+			Options;
 		_ ->
 			undefined
+	end.
+
+description_vsn(ScriptName) ->
+	case script_options(ScriptName) of
+		undefined ->
+			undefined;
+		Options ->
+			Description = proplists:get_value(description, Options),
+			Vsn = proplists:get_value(vsn, Options),
+			{Description, Vsn}
+	end.
+
+handlers(ScriptName) ->
+	case script_options(ScriptName) of
+		undefined ->
+			undefined;
+		Options ->
+			proplists:get_value(handlers, Options)
+	end.
+
+get_handler(FileName, [{Pattern, Handler} | Patterns]) ->
+	case re:run(FileName, Pattern, [{capture, none}]) of
+		match ->
+			Handler;
+		nomatch ->
+			get_handler(FileName, Patterns)
 	end.

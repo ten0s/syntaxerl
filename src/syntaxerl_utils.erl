@@ -57,7 +57,7 @@ erlc_opts(_BaseDir) ->
 	warn_unused_function,
 	warn_unused_variable,
 	warn_deprecated_function,
-	warn_missing_spec, % ext opts ???
+%	warn_missing_spec, % ext opts ???
 
 	warn_unused_vars,
 	warn_unused_record,

@@ -7,12 +7,12 @@
 -include("check_syntax_spec.hrl").
 
 check_syntax(FileName, Debug) ->
-	{InclDirs, EbinDirs, ErlcOpts} = syntaxerl_utils:incls_ebins_opts(FileName),
+	{InclDirs, DepsDirs, ErlcOpts} = syntaxerl_utils:incls_deps_opts(FileName),
 	syntaxerl_logger:debug(Debug, "Include dirs: ~p", [InclDirs]),
-	syntaxerl_logger:debug(Debug, "Ebin dirs: ~p", [EbinDirs]),
+	syntaxerl_logger:debug(Debug, "Deps dirs: ~p", [DepsDirs]),
 	syntaxerl_logger:debug(Debug, "Erlc opts: ~p", [ErlcOpts]),
 
-	code:add_paths(EbinDirs),
+	code:add_paths(DepsDirs),
 
 	Result = compile:file(FileName, ErlcOpts ++ InclDirs),
 	syntaxerl_logger:debug(Debug, "Compile result: ~p", [Result]),

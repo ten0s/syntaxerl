@@ -18,12 +18,12 @@ check_syntax(FileName, Debug) ->
 			NewFileName = FileName ++ ".erl",
 			case file:write_file(NewFileName, ErlContent) of
 				ok ->
-					{InclDirs, EbinDirs, ErlcOpts} = syntaxerl_utils:incls_ebins_opts(FileName),
+					{InclDirs, DepsDirs, ErlcOpts} = syntaxerl_utils:incls_deps_opts(FileName),
 					syntaxerl_logger:debug(Debug, "Include dirs: ~p", [InclDirs]),
-					syntaxerl_logger:debug(Debug, "Ebin dirs: ~p", [EbinDirs]),
+					syntaxerl_logger:debug(Debug, "Deps dirs: ~p", [DepsDirs]),
 					syntaxerl_logger:debug(Debug, "Erlc opts: ~p", [ErlcOpts]),
 
-					code:add_paths(EbinDirs),
+					code:add_paths(DepsDirs),
 
 					Result = compile:file(NewFileName, ErlcOpts ++ InclDirs),
 					syntaxerl_logger:debug(Debug, "Compile result: ~p", [Result]),

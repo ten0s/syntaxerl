@@ -2,7 +2,7 @@
 -author("Dmitry Klionsky <dm.klionsky@gmail.com>").
 
 -export([
-	incls_ebins_opts/1,
+	incls_deps_opts/1,
 	error_description/1,
 	print_issues/2
 ]).
@@ -11,38 +11,14 @@
 
 %% API
 
--spec incls_ebins_opts(FileName::file:filename()) ->
+-spec incls_deps_opts(FileName::file:filename()) ->
 	{InclDirs::[file:name()], EbinDirs::[file:name()], ErlcOpts::[term()]}.
-incls_ebins_opts(FileName) ->
+incls_deps_opts(FileName) ->
 	AbsFileName = filename:absname(FileName),
 	BaseDir = filename:dirname(filename:dirname(AbsFileName)),
 
-	DepsDirs = deps_dirs(BaseDir),
-	ErlcOpts = erlc_opts(BaseDir),
-
-	{_, EbinDirs} = lists:mapfoldr(fun(Dir, Acc) -> {0, filelib:wildcard(Dir ++ "/*/ebin") ++ Acc} end, [], DepsDirs),
-	IncludeDirs = lists:map(fun(Dir) -> {i, Dir} end, DepsDirs),
-	{IncludeDirs, EbinDirs, ErlcOpts}.
-
--spec deps_dirs(BaseDir::file:name()) -> [Dir::file:name()].
-deps_dirs(BaseDir) ->
-	OtpStdDirs = absdirs(BaseDir, ["./include", "./deps"]),
-	DepsDirs =
-		case rebar_deps_dirs(BaseDir) of
-			{ok, RebarDepsDirs} ->
-				RebarDepsDirs;
-			{error, bad_format} ->
-				[]; % nothing to do. fix your config file. :(
-			{error, not_found} ->
-				% sinan, Emakefile, ...
-				[]
-		end,
-	UniqDirs = uniq(OtpStdDirs ++ DepsDirs),
-	lists:map(fun(Dir) -> filename:join(BaseDir, Dir) end, UniqDirs).
-
--spec erlc_opts(BaseDir::file:name()) -> [Option::term()].
-erlc_opts(BaseDir) ->
-	DefaultErlcOpts = [
+	StdOtpDirs = absdirs(BaseDir, ["./include", "./deps"]),
+	StdErlcOpts = [
 		strong_validation,
 
 		{warn_format, 1},
@@ -61,17 +37,28 @@ erlc_opts(BaseDir) ->
 		return_errors,
 		return_warnings
 	],
-	ErlcOpts =
-		case rebar_erlc_opts(BaseDir) of
-			{ok, RebarErlcOpts} ->
-				RebarErlcOpts;
+
+	{DepsDirs, ErlcOpts} = deps_opts(BaseDir, StdOtpDirs, StdErlcOpts),
+
+	{_, EbinDirs} = lists:mapfoldr(fun(Dir, Acc) -> {0, filelib:wildcard(Dir ++ "/*/ebin") ++ Acc} end, [], DepsDirs),
+	IncludeDirs = lists:map(fun(Dir) -> {i, Dir} end, DepsDirs),
+	{IncludeDirs, EbinDirs, ErlcOpts}.
+
+-spec deps_opts(BaseDir::file:name(), OtpStdDirs::[file:name()], ErlcStdOpts::[term()]) -> {[file:name()], [term()]}.
+deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts) ->
+	{DepsDirs, ErlcOpts} =
+		case rebar_deps_opts(BaseDir) of
+			{ok, {RebarDepsDirs, RebarErlcOpts}} ->
+				{RebarDepsDirs, RebarErlcOpts};
 			{error, bad_format} ->
 				[]; % nothing to do. fix your config file. :(
 			{error, not_found} ->
 				% sinan, Emakefile, ...
 				[]
 		end,
-	uniq(DefaultErlcOpts ++ ErlcOpts).
+	UniqDepsDirs = uniq(OtpStdDirs ++ DepsDirs),
+	UniqErlcOpts = uniq(ErlcStdOpts ++ ErlcOpts),
+	{UniqDepsDirs, UniqErlcOpts}.
 
 %% the `file:format_error' returns the error description in the `line: description' format.
 %% here only the `description' is returned.
@@ -95,51 +82,34 @@ print_issue(FileName, {error, Line, Description}) ->
 
 %% Internal
 
-rebar_deps_dirs("/") ->
+rebar_deps_opts("/") ->
 	{error, not_found};
-rebar_deps_dirs(BaseDir) ->
+rebar_deps_opts(BaseDir) ->
+	%% rebar specific begin
 	RebarConfig = filename:join(BaseDir, "rebar.config"),
+	%% rebar specific end
 	case filelib:is_file(RebarConfig) of
 		true ->
 			case file:consult(RebarConfig) of
 				{ok, Terms} ->
+					%% rebar specific begin
 					LibDirs = proplists:get_value(lib_dirs, Terms, []),
 					DepsDir = proplists:get_value(deps_dir, Terms, ["deps"]),
-					%% recursively try to find configs in parents directory.
-					case rebar_deps_dirs(filename:dirname(BaseDir)) of
-						{ok, ParentDirs} ->
-							{ok, absdirs(BaseDir, uniq(LibDirs ++ DepsDir ++ ParentDirs))};
-						{error, _} ->
-							{ok, absdirs(BaseDir, uniq(LibDirs ++ DepsDir))}
-					end;
-				{error, _} ->
-		            {error, bad_format}
-			end;
-		false ->
-			rebar_deps_dirs(filename:dirname(BaseDir))
-	end.
-
-rebar_erlc_opts("/") ->
-	{error, not_found};
-rebar_erlc_opts(BaseDir) ->
-	RebarConfig = filename:join(BaseDir, "rebar.config"),
-	case filelib:is_file(RebarConfig) of
-		true ->
-			case file:consult(RebarConfig) of
-				{ok, Terms} ->
 					ErlcOpts = proplists:get_value(erl_opts, Terms, []),
+					%% rebar specific end
+
 					%% recursively try to find configs in parents directory.
-					case rebar_erlc_opts(filename:dirname(BaseDir)) of
-						{ok, ParentErlcOpts} ->
-							{ok, uniq(ErlcOpts ++ ParentErlcOpts)};
+					case rebar_deps_opts(filename:dirname(BaseDir)) of
+						{ok, {ParentDirs, ParentErlcOpts}} ->
+							{ok, {absdirs(BaseDir, uniq(LibDirs ++ DepsDir ++ ParentDirs)), uniq(ErlcOpts ++ ParentErlcOpts)}};
 						{error, _} ->
-							{ok, uniq(ErlcOpts)}
+							{ok, {absdirs(BaseDir, uniq(LibDirs ++ DepsDir)), ErlcOpts}}
 					end;
 				{error, _} ->
 		            {error, bad_format}
 			end;
 		false ->
-			rebar_erlc_opts(filename:dirname(BaseDir))
+			rebar_deps_opts(filename:dirname(BaseDir))
 	end.
 
 uniq(List) ->

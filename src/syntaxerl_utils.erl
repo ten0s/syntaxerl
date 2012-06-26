@@ -41,32 +41,28 @@ deps_dirs(BaseDir) ->
 	lists:map(fun(Dir) -> filename:join(BaseDir, Dir) end, UniqDirs).
 
 -spec erlc_opts(BaseDir::file:name()) -> [Option::term()].
-erlc_opts(_BaseDir) ->
-	[
+erlc_opts(_BaseDir) -> [
 	% some will be by default
-	% some will go from rebar, anger, sinan, Emakefile options
-	% rebar.config: {erl_opts, [warn_untyped_record]}.
+	% some will go from rebar, sinan, Emakefile options
+	% rebar.config: {erl_opts, [warn_export_all, warn_missing_spec, warn_untyped_record]}.
 	strong_validation,
 	{warn_format, 1},
-	warn_export_all,
 	warn_export_vars,
 	warn_shadow_vars,
 	warn_obsolete_guard,
+	warn_deprecated_function,
+	warn_exported_vars,
+	warn_bif_clash,
 
 	warn_unused_import,
 	warn_unused_function,
 	warn_unused_variable,
-	warn_deprecated_function,
-%	warn_missing_spec, % ext opts ???
-
 	warn_unused_vars,
 	warn_unused_record,
-	warn_exported_vars,
-	%warn_untyped_record, % record `...' has field(s) without type information -> ext opts
-	warn_bif_clash,
 
 	return_errors,
-	return_warnings].
+	return_warnings
+].
 
 %% the `file:format_error' returns the error description in the `line: description' format.
 %% here only the `description' is returned.

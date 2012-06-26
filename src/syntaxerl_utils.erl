@@ -41,28 +41,37 @@ deps_dirs(BaseDir) ->
 	lists:map(fun(Dir) -> filename:join(BaseDir, Dir) end, UniqDirs).
 
 -spec erlc_opts(BaseDir::file:name()) -> [Option::term()].
-erlc_opts(_BaseDir) -> [
-	% some will be by default
-	% some will go from rebar, sinan, Emakefile options
-	% rebar.config: {erl_opts, [warn_export_all, warn_missing_spec, warn_untyped_record]}.
-	strong_validation,
-	{warn_format, 1},
-	warn_export_vars,
-	warn_shadow_vars,
-	warn_obsolete_guard,
-	warn_deprecated_function,
-	warn_exported_vars,
-	warn_bif_clash,
+erlc_opts(BaseDir) ->
+	DefaultErlcOpts = [
+		strong_validation,
 
-	warn_unused_import,
-	warn_unused_function,
-	warn_unused_variable,
-	warn_unused_vars,
-	warn_unused_record,
+		{warn_format, 1},
+		warn_export_vars,
+		warn_shadow_vars,
+		warn_obsolete_guard,
+		warn_deprecated_function,
+		warn_exported_vars,
+		warn_bif_clash,
+		warn_unused_import,
+		warn_unused_function,
+		warn_unused_variable,
+		warn_unused_vars,
+		warn_unused_record,
 
-	return_errors,
-	return_warnings
-].
+		return_errors,
+		return_warnings
+	],
+	ErlcOpts =
+		case rebar_erlc_opts(BaseDir) of
+			{ok, RebarErlcOpts} ->
+				RebarErlcOpts;
+			{error, bad_format} ->
+				[]; % nothing to do. fix your config file. :(
+			{error, not_found} ->
+				% sinan, Emakefile, ...
+				[]
+		end,
+	uniq(DefaultErlcOpts ++ ErlcOpts).
 
 %% the `file:format_error' returns the error description in the `line: description' format.
 %% here only the `description' is returned.
@@ -83,7 +92,6 @@ print_issue(FileName, {error, Description}) ->
 	io:format("~s:~s~n", [FileName, Description]);
 print_issue(FileName, {error, Line, Description}) ->
 	io:format("~s:~p: ~s~n", [FileName, Line, Description]).
-
 
 %% Internal
 
@@ -111,9 +119,31 @@ rebar_deps_dirs(BaseDir) ->
 			rebar_deps_dirs(filename:dirname(BaseDir))
 	end.
 
+rebar_erlc_opts("/") ->
+	{error, not_found};
+rebar_erlc_opts(BaseDir) ->
+	RebarConfig = filename:join(BaseDir, "rebar.config"),
+	case filelib:is_file(RebarConfig) of
+		true ->
+			case file:consult(RebarConfig) of
+				{ok, Terms} ->
+					ErlcOpts = proplists:get_value(erl_opts, Terms, []),
+					%% recursively try to find configs in parents directory.
+					case rebar_erlc_opts(filename:dirname(BaseDir)) of
+						{ok, ParentErlcOpts} ->
+							{ok, uniq(ErlcOpts ++ ParentErlcOpts)};
+						{error, _} ->
+							{ok, uniq(ErlcOpts)}
+					end;
+				{error, _} ->
+		            {error, bad_format}
+			end;
+		false ->
+			rebar_erlc_opts(filename:dirname(BaseDir))
+	end.
+
 uniq(List) ->
 	sets:to_list(sets:from_list(List)).
 
 absdirs(BaseDir, RelativeDirs) ->
 	lists:map(fun(Dir) -> filename:join(BaseDir, Dir) end, RelativeDirs).
-

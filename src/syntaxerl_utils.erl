@@ -51,10 +51,10 @@ deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts) ->
 			{ok, {RebarDepsDirs, RebarErlcOpts}} ->
 				{RebarDepsDirs, RebarErlcOpts};
 			{error, bad_format} ->
-				[]; % nothing to do. fix your config file. :(
+				{[], []}; % nothing to do. fix your config file. :(
 			{error, not_found} ->
 				% sinan, Emakefile, ...
-				[]
+				{[], []}
 		end,
 	UniqDepsDirs = uniq(OtpStdDirs ++ DepsDirs),
 	UniqErlcOpts = uniq(ErlcStdOpts ++ ErlcOpts),

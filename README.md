@@ -1,7 +1,7 @@
 SyntaxErl
 =========
 
-SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently supports erlang source files (.erl), erlang header files (.hrl), and erlang terms (.config, ...). Its main purpose is to be used in tools like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's syntastic https://github.com/scrooloose/syntastic. SyntaxErl uses the Rebar https://github.com/basho/rebar config file to determine correct deps and libs paths. Some generic compile options are hardcoded, others, project specific, are read from the rebar config file. Sinan https://github.com/erlware/sinan and Emakefile http://www.erlang.org/doc/man/make.html support are considered to be implemented by request. Pull requests are welcome.
+SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently supports erlang source files (.erl), erlang header files (.hrl), and erlang terms (.config, ...). Its main purpose is to be used in tools like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's syntastic https://github.com/scrooloose/syntastic. SyntaxErl uses the Rebar https://github.com/basho/rebar config file to determine correct deps and libs paths. Some generic compile options are hardcoded, others, project specific, are read from the rebar config file. Sinan https://github.com/erlware/sinan and Emakefile http://www.erlang.org/doc/man/make.html support is also possible to incorporate. Pull requests are welcome.
 
 Building
 --------
@@ -107,9 +107,9 @@ Syntax checker for Erlang (0.0.3)
 
 #### Erlang-flymake
 
-Coming soon
+Your help is welcome.
 
 ### Vim
 
-Coming soon
+Your help is welcome.
 

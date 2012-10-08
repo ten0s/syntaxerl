@@ -1,6 +1,6 @@
 .PHONY: doc
 
-REBAR=$(shell which rebar || echo ./rebar)
+REBAR=./rebar
 
 all: compile escriptize
 

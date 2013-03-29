@@ -94,16 +94,18 @@ rebar_deps_opts(BaseDir) ->
 				{ok, Terms} ->
 					%% rebar specific begin
 					LibDirs = proplists:get_value(lib_dirs, Terms, []),
-					DepsDir = proplists:get_value(deps_dir, Terms, ["deps"]),
+					DepsDir = proplists:get_value(deps_dir, Terms, "deps"),
+					LocalDirs = LibDirs ++ [DepsDir],
+
 					ErlcOpts = proplists:get_value(erl_opts, Terms, []),
 					%% rebar specific end
 
-					%% recursively try to find configs in parents directory.
+					%% try to find recursively configs in parents directories.
 					case rebar_deps_opts(filename:dirname(BaseDir)) of
 						{ok, {ParentDirs, ParentErlcOpts}} ->
-							{ok, {absdirs(BaseDir, uniq(LibDirs ++ DepsDir ++ ParentDirs)), uniq(ErlcOpts ++ ParentErlcOpts)}};
+							{ok, {absdirs(BaseDir, uniq(LocalDirs ++ ParentDirs)), uniq(ErlcOpts ++ ParentErlcOpts)}};
 						{error, _} ->
-							{ok, {absdirs(BaseDir, uniq(LibDirs ++ DepsDir)), ErlcOpts}}
+							{ok, {absdirs(BaseDir, uniq(LocalDirs)), ErlcOpts}}
 					end;
 				{error, _} ->
 		            {error, bad_format}

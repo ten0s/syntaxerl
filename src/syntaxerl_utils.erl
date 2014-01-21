@@ -93,11 +93,11 @@ rebar_deps_opts(BaseDir) ->
 			case file:consult(RebarConfig) of
 				{ok, Terms} ->
 					%% rebar specific begin
+					ErlcOpts = proplists:get_value(erl_opts, Terms, []),
+
 					LibDirs = proplists:get_value(lib_dirs, Terms, []),
 					DepsDir = proplists:get_value(deps_dir, Terms, "deps"),
-					LocalDirs = LibDirs ++ [DepsDir],
-
-					ErlcOpts = proplists:get_value(erl_opts, Terms, []),
+					LocalDirs = LibDirs ++ [DepsDir] ++  proplists:get_all_values(i, ErlcOpts),
 					%% rebar specific end
 
 					%% try to find recursively configs in parents directories.

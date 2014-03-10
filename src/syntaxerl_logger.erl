@@ -4,8 +4,6 @@
 
 -spec debug(Output::boolean(), Fmt::string(), Args::[term()]) -> ok.
 debug(true, Fmt, Args) ->
-	io:format("DEBUG: " ++ Fmt ++ "~n", Args);
+    io:format("DEBUG: " ++ Fmt ++ "~n", Args);
 debug(false, _Fmt, _Args) ->
-	ok.
-
-
+    ok.

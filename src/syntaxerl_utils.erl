@@ -90,7 +90,7 @@ rebar_deps_opts(BaseDir) ->
 	%% rebar specific end
 	case filelib:is_file(RebarConfig) of
 		true ->
-			case file:consult(RebarConfig) of
+			case consult_file(RebarConfig) of
 				{ok, Terms} ->
 					%% rebar specific begin
 					ErlcOpts = proplists:get_value(erl_opts, Terms, []),
@@ -114,6 +114,42 @@ rebar_deps_opts(BaseDir) ->
 			rebar_deps_opts(filename:dirname(BaseDir))
 	end.
 
+consult_file(File) ->
+    case filename:extension(File) of
+        ".script" ->
+            consult_and_eval(remove_script_ext(File), File);
+        _ ->
+            Script = File ++ ".script",
+            case filelib:is_regular(Script) of
+                true ->
+                    consult_and_eval(File, Script);
+                false ->
+                    file:consult(File)
+            end
+    end.
+
+consult_and_eval(File, Script) ->
+    ConfigData = try_consult(File),
+    file:script(Script, bs([{'CONFIG', ConfigData}, {'SCRIPT', Script}])).
+
+remove_script_ext(F) ->
+    "tpircs." ++ Rev = lists:reverse(F),
+    lists:reverse(Rev).
+
+try_consult(File) ->
+    case file:consult(File) of
+        {ok, Terms} ->
+            Terms;
+        {error, enoent} ->
+            [];
+        {error, Reason} ->
+            syntaxerl_logger:debug(true, "Failed to read config file ~s: ~p~n", [File, Reason])
+    end.
+
+bs(Vars) ->
+    lists:foldl(fun({K,V}, Bs) ->
+                        erl_eval:add_binding(K, V, Bs)
+                end, erl_eval:new_bindings(), Vars).
 uniq(List) ->
 	sets:to_list(sets:from_list(List)).
 

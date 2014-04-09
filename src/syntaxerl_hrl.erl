@@ -12,15 +12,15 @@
 
 check_syntax(FileName, Debug) ->
     case file:read_file(FileName) of
-        {ok, HrlContent} ->
+        {ok, Content} ->
             %% precede with the module name, so now this is a real erlang module.
-            ErlContent = <<
-                <<"-module(test_inc).\n">>/binary,
-                HrlContent/binary
+            NewContent = <<
+                <<"-module(fixed_inc).\n">>/binary,
+                Content/binary
             >>,
             %% append an erlang extention, so the `compile:file' won't complain.
             NewFileName = FileName ++ ".erl",
-            case file:write_file(NewFileName, ErlContent) of
+            case file:write_file(NewFileName, NewContent) of
                 ok ->
                     {InclDirs, DepsDirs, ErlcOpts} = syntaxerl_utils:incls_deps_opts(FileName),
                     syntaxerl_logger:debug(Debug, "Include dirs: ~p", [InclDirs]),

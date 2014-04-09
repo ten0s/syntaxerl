@@ -116,6 +116,28 @@ match_patterns(FileName, [{suffix, Suffix} | Patterns]) ->
         false ->
             nomatch
     end;
+match_patterns(FileName, [shebang | Patterns]) ->
+    case read_first_byte(FileName) of
+        {ok, <<"#">>} ->
+            match_patterns(FileName, Patterns);
+        _ ->
+            nomatch
+    end;
 match_patterns(_FileName, []) ->
     match.
+
+read_first_byte(FileName) ->
+    case file:open(FileName, [read, binary]) of
+        {ok, Fd} ->
+            Result =
+                case file:read(Fd, 1) of
+                    {ok, Byte} ->
+                        {ok, Byte};
+                    _ ->
+                        error
+                end,
+            file:close(Fd),
+            Result;
+        _ ->
+            error
     end.

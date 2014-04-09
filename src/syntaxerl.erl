@@ -9,6 +9,10 @@ behaviour_info(callbacks) ->
 behaviour_info(_) ->
     undefined.
 
+%% ===================================================================
+%% API
+%% ===================================================================
+
 -spec main([string()]) -> no_return().
 main([""]) ->
     usage();
@@ -32,6 +36,10 @@ main(["--debug", FileName]) ->
     check_syntax(FileName, true);
 main(_) ->
     usage().
+
+%% ===================================================================
+%% Internal
+%% ===================================================================
 
 check_syntax(FileName, Debug) ->
     ScriptName = escript:script_name(),

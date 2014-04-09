@@ -6,6 +6,10 @@
 
 -include("check_syntax_spec.hrl").
 
+%% ===================================================================
+%% API
+%% ===================================================================
+
 check_syntax(FileName, Debug) ->
     case file:read_file(FileName) of
         {ok, HrlContent} ->
@@ -45,7 +49,9 @@ check_syntax(FileName, Debug) ->
             {error, [{error, file:format_error(Reason)}]}
     end.
 
-%%% Internal
+%% ===================================================================
+%% Internal
+%% ===================================================================
 
 %% skip errors that might occur in pure header files.
 output_error({_, _, {spec_fun_undefined, _}}) -> false;

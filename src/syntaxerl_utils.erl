@@ -9,7 +9,9 @@
 
 -include("issues_spec.hrl").
 
+%% ===================================================================
 %% API
+%% ===================================================================
 
 -spec incls_deps_opts(FileName::file:filename()) ->
     {InclDirs::[file:name()], EbinDirs::[file:name()], ErlcOpts::[term()]}.
@@ -80,7 +82,9 @@ print_issue(FileName, {error, Description}) ->
 print_issue(FileName, {error, Line, Description}) ->
     io:format("~s:~p: ~s~n", [FileName, Line, Description]).
 
-%% Internal
+%% ===================================================================
+%% API
+%% ===================================================================
 
 rebar_deps_opts("/") ->
     {error, not_found};

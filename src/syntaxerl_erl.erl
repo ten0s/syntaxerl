@@ -6,6 +6,10 @@
 
 -include("check_syntax_spec.hrl").
 
+%% ===================================================================
+%% API
+%% ===================================================================
+
 check_syntax(FileName, Debug) ->
     {InclDirs, DepsDirs, ErlcOpts} = syntaxerl_utils:incls_deps_opts(FileName),
     syntaxerl_logger:debug(Debug, "Include dirs: ~p", [InclDirs]),
@@ -26,7 +30,9 @@ check_syntax(FileName, Debug) ->
             {error, format_errors(Errors) ++ format_warnings(Warnings)}
     end.
 
-%%% Internal
+%% ===================================================================
+%% Internal
+%% ===================================================================
 
 output_error(_) -> true.
 

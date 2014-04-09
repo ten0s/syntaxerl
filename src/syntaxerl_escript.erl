@@ -29,7 +29,7 @@ check_syntax(FileName, Debug) ->
                     Result = compile:file(NewFileName, ErlcOpts ++ InclDirs),
                     syntaxerl_logger:debug(Debug, "Compile result: ~p", [Result]),
 
-                    %file:delete(NewFileName),
+                    file:delete(NewFileName),
 
                     case Result of
                         {ok, _ModuleName} ->

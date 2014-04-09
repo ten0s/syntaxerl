@@ -43,9 +43,9 @@ main(_) ->
 
 check_syntax(FileName, Debug) ->
     ScriptName = escript:script_name(),
-    Handlers = handlers(ScriptName),
-    syntaxerl_logger:debug(Debug, "Handlers: ~p", [Handlers]),
-    Handler = get_handler(FileName, Handlers),
+    HandlerPatterns = handler_patterns(ScriptName),
+    syntaxerl_logger:debug(Debug, "Handler patterns: ~p", [HandlerPatterns]),
+    Handler = choose_handler(FileName, HandlerPatterns),
     syntaxerl_logger:debug(Debug, "Selected handler: ~p", [Handler]),
     case Handler:check_syntax(FileName, Debug) of
         {ok, Issues} ->
@@ -91,18 +91,31 @@ description_vsn(ScriptName) ->
             {Description, Vsn}
     end.
 
-handlers(ScriptName) ->
+handler_patterns(ScriptName) ->
     case script_options(ScriptName) of
         undefined ->
             undefined;
         Options ->
-            proplists:get_value(handlers, Options)
+            proplists:get_value(handler_patterns, Options)
     end.
 
-get_handler(FileName, [{Pattern, Handler} | Patterns]) ->
-    case re:run(FileName, Pattern, [{capture, none}]) of
+choose_handler(FileName, [{Patterns, Handler} | HandlerPatterns]) ->
+    case match_patterns(FileName, Patterns) of
         match ->
             Handler;
         nomatch ->
-            get_handler(FileName, Patterns)
+            choose_handler(FileName, HandlerPatterns)
+    end;
+choose_handler(_FileName, []) ->
+    erlang:error(no_handler_pattern_found).
+
+match_patterns(FileName, [{suffix, Suffix} | Patterns]) ->
+    case lists:suffix(Suffix, FileName) of
+        true ->
+            match_patterns(FileName, Patterns);
+        false ->
+            nomatch
+    end;
+match_patterns(_FileName, []) ->
+    match.
     end.

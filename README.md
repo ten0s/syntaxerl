@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ten0s/syntaxerl.svg?branch=master)](https://travis-ci.org/ten0s/syntaxerl)
+
 SyntaxErl
 =========
 

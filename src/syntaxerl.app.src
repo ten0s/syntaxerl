@@ -8,9 +8,10 @@
     ]},
     {env, []},
     {handler_patterns, [
-        {[{suffix, "hrl"}],          syntaxerl_hrl},
-        {[{suffix, "erl"}, shebang], syntaxerl_escript},
-        {[{suffix, "erl"}],          syntaxerl_erl},
-        {[],                         syntaxerl_terms}
+        {[{suffix, ".hrl"}],          syntaxerl_hrl},
+        {[{suffix, ".escript"}],      syntaxerl_escript},
+        {[{suffix, ".erl"}, shebang], syntaxerl_escript},
+        {[{suffix, ".erl"}],          syntaxerl_erl},
+        {[],                          syntaxerl_terms}
     ]}
 ]}.

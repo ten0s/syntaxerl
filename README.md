@@ -3,7 +3,7 @@
 SyntaxErl
 =========
 
-SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently supports erlang source files (.erl), erlang header files (.hrl), and erlang terms (.config, ...). Its main purpose is to be used by tools like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's syntastic https://github.com/scrooloose/syntastic. SyntaxErl uses the Rebar https://github.com/basho/rebar config file to determine correct deps and libs paths. Some generic compile options are hardcoded, others, project specific, are read from the rebar config file. To make it possible for the syntax checker to work its magic, make sure that your project is compiled first (using the Rebar or something) and all the deps are at their places. Sinan https://github.com/erlware/sinan and Emakefile http://www.erlang.org/doc/man/make.html support is also possible to incorporate. Pull requests are welcome.
+SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently supports erlang source files (.erl), erlang header files (.hrl), erlang configs (.config, .rel, .script, .app, .app.src, etc), and erlang script files (.erl, .escript). Its main purpose is to be used by tools like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's syntastic https://github.com/scrooloose/syntastic. SyntaxErl uses the Rebar https://github.com/basho/rebar config file to determine correct deps and libs paths. Some generic compile options are hardcoded, others, project specific, are read from the rebar config file. To make it possible for the syntax checker to work its magic, make sure that your project is compiled first (using the Rebar or something) and all the deps are at their places. Sinan https://github.com/erlware/sinan and Emakefile http://www.erlang.org/doc/man/make.html support is also possible to incorporate. Pull requests are welcome.
 
 Building
 --------
@@ -66,6 +66,7 @@ Syntax checker for Erlang (0.0.6)
 (add-to-list 'auto-mode-alist '(".*\\.config\\'" . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.rel\\'" . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.script\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*\\.escript\\'" . erlang-mode))
 
 ; add include directory to default compile path.
 (defvar erlang-compile-extra-opts
@@ -101,6 +102,7 @@ Syntax checker for Erlang (0.0.6)
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.config\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.rel\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.script\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.escript\\'" flymake-syntaxerl))
 
 	 ;; should be the last.
 	 (flymake-mode 1)

@@ -115,5 +115,14 @@ Your help is welcome.
 
 ### Vim
 
-Your help is welcome.
+#### Syntastic
+
+Setup everything as described [here](https://github.com/scrooloose/syntastic).
+Then add
+
+    let g:syntastic_erlang_checkers=['syntaxerl']
+
+to your vimrc.
+
+Thanks [locojay](https://github.com/locojay) for that.
 

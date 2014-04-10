@@ -52,8 +52,6 @@ check_syntax(FileName, Debug) ->
 
 output_error(_) -> true.
 
-%% skip warnings that might occur in correct escript files.
-output_warning({_, _, {unused_function, {main, 1}}}) -> false;
 output_warning(_) -> true.
 
 fix_line_number(none) -> 1;

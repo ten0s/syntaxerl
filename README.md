@@ -36,7 +36,7 @@ Usage
 $ syntaxerl
 Usage: syntaxerl [-d] filename
 Usage: syntaxerl [-h]
-Syntax checker for Erlang (0.0.6)
+Syntax checker for Erlang (0.7.0)
 
   -d, --debug    Enable debug output
   -h, --help     Show this message

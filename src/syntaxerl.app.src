@@ -1,6 +1,6 @@
 {application, syntaxerl, [
     {description, "Syntax checker for Erlang"},
-    {vsn, "0.0.6"},
+    {vsn, "0.7.0"},
     {registered, []},
     {applications, [
         kernel,

@@ -12,3 +12,6 @@ compile:
 
 clean:
 	@$(REBAR) clean
+
+tags:
+	@find . -name "*.[e,h]rl" -print | etags -

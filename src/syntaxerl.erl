@@ -41,6 +41,7 @@ main(_) ->
 %% Internal
 %% ===================================================================
 
+-spec check_syntax(string(), boolean()) -> no_return().
 check_syntax(FileName, Debug) ->
     ScriptName = escript:script_name(),
     HandlerPatterns = handler_patterns(ScriptName),
@@ -66,7 +67,8 @@ usage() ->
             io:format("~n")
     end,
     io:format("  -d, --debug    Enable debug output~n"),
-    io:format("  -h, --help     Show this message~n~n").
+    io:format("  -h, --help     Show this message~n~n"),
+    halt(1).
 
 script_options(ScriptName) ->
     {ok, Sections} = escript:extract(ScriptName, []),

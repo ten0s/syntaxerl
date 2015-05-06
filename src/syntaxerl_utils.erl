@@ -68,19 +68,27 @@ deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts) ->
 error_description(Error) ->
     tl(lists:dropwhile(fun(C) -> C =/= 32 end, file:format_error(Error))).
 
--spec print_issues(FileName::file:filename(), Issues::[issue()]) -> ok.
-print_issues(_FileName, []) ->
-    ok;
-print_issues(FileName, [Issue | Issues]) ->
-    print_issue(FileName, Issue),
-    print_issues(FileName, Issues).
+-spec print_issues(FileName::file:filename(), Issues::[issue()]) -> no_return().
+print_issues(FileName, Issues) ->
+    print_issues(FileName, Issues, 0).
+
+print_issues(_FileName, [], 0) ->
+    halt(0);
+print_issues(_FileName, [], _ErrCount) ->
+    halt(2);
+print_issues(FileName, [Issue | Issues], ErrCount) ->
+    Errs = print_issue(FileName, Issue),
+    print_issues(FileName, Issues, ErrCount + Errs).
 
 print_issue(FileName, {warning, Line, Description}) ->
-    io:format("~s:~p: warning: ~s~n", [FileName, Line, Description]);
+    io:format("~s:~p: warning: ~s~n", [FileName, Line, Description]),
+    0;
 print_issue(FileName, {error, Description}) ->
-    io:format("~s:~s~n", [FileName, Description]);
+    io:format("~s:~s~n", [FileName, Description]),
+    1;
 print_issue(FileName, {error, Line, Description}) ->
-    io:format("~s:~p: ~s~n", [FileName, Line, Description]).
+    io:format("~s:~p: ~s~n", [FileName, Line, Description]),
+    1.
 
 %% ===================================================================
 %% API

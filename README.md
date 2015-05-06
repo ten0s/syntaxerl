@@ -34,10 +34,9 @@ Usage
 
 ```sh
 $ syntaxerl
-Usage: syntaxerl [-d] filename
-Usage: syntaxerl [-h]
 Syntax checker for Erlang (0.7.0)
-
+Usage: syntaxerl [-d | --debug] <FILENAME>
+       syntaxerl <-h | --help>
   -d, --debug    Enable debug output
   -h, --help     Show this message
 ```
@@ -125,4 +124,3 @@ Then add
 to your vimrc.
 
 Thanks [locojay](https://github.com/locojay) for that.
-

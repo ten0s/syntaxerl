@@ -40,7 +40,12 @@ check_syntax(FileName, Debug) ->
                         {ok, _ModuleName, Warnings} ->
                             {ok, format_warnings(Warnings)};
                         {error, Errors, Warnings} ->
-                            {error, format_errors(Errors) ++ format_warnings(Warnings)}
+                            case format_errors(Errors) of
+                                [] ->
+                                    {ok, format_warnings(Warnings)};
+                                Errors2 ->
+                                    {error, Errors2 ++ format_warnings(Warnings)}
+                            end
                     end;
                 {error, Reason} ->
                     {error, [{error, file:format_error(Reason)}]}

@@ -9,21 +9,25 @@ behaviour_info(callbacks) ->
 behaviour_info(_) ->
     undefined.
 
+-define(EXIT_SUCCESS, 0).
+-define(EXIT_FAILURE, 1).
+-type exit_code() :: ?EXIT_SUCCESS | ?EXIT_FAILURE.
+
 %% ===================================================================
 %% API
 %% ===================================================================
 
 -spec main([string()]) -> no_return().
 main([""]) ->
-    usage();
+    usage(?EXIT_FAILURE);
 main(["-h"]) ->
-    usage();
+    usage(?EXIT_SUCCESS);
 main(["--help"]) ->
-    usage();
+    usage(?EXIT_SUCCESS);
 main(["-d"]) ->
-    usage();
+    usage(?EXIT_FAILURE);
 main(["--debug"]) ->
-    usage();
+    usage(?EXIT_FAILURE);
 main([FileName]) ->
     check_syntax(FileName, false);
 main([FileName, "-d"]) ->
@@ -35,12 +39,13 @@ main([FileName, "--debug"]) ->
 main(["--debug", FileName]) ->
     check_syntax(FileName, true);
 main(_) ->
-    usage().
+    usage(?EXIT_FAILURE).
 
 %% ===================================================================
 %% Internal
 %% ===================================================================
 
+-spec check_syntax(string(), boolean()) -> exit_code().
 check_syntax(FileName, Debug) ->
     ScriptName = escript:script_name(),
     HandlerPatterns = handler_patterns(ScriptName),
@@ -49,24 +54,28 @@ check_syntax(FileName, Debug) ->
     syntaxerl_logger:debug(Debug, "Selected handler: ~p", [Handler]),
     case Handler:check_syntax(FileName, Debug) of
         {ok, Issues} ->
-            syntaxerl_utils:print_issues(FileName, Issues);
+            syntaxerl_utils:print_issues(FileName, Issues),
+            halt(?EXIT_SUCCESS);
         {error, Issues} ->
-            syntaxerl_utils:print_issues(FileName, Issues)
+            syntaxerl_utils:print_issues(FileName, Issues),
+            halt(?EXIT_FAILURE)
     end.
 
-usage() ->
+-spec usage(exit_code()) -> no_return().
+usage(ExitCode) ->
     ScriptName = escript:script_name(),
     BaseName = filename:basename(ScriptName),
-    io:format("Usage: ~s [-d] filename~n", [BaseName]),
-    io:format("Usage: ~s [-h]~n", [BaseName]),
     case description_vsn(ScriptName) of
         {Description, Vsn} ->
-            io:format("~s (~s)~n~n", [Description, Vsn]);
+            io:format("~s (~s)~n", [Description, Vsn]);
         _ ->
             io:format("~n")
     end,
+    io:format("Usage: ~s [-d | --debug] <FILENAME>~n", [BaseName]),
+    io:format("       ~s <-h | --help>~n", [BaseName]),
     io:format("  -d, --debug    Enable debug output~n"),
-    io:format("  -h, --help     Show this message~n~n").
+    io:format("  -h, --help     Show this message~n"),
+    halt(ExitCode).
 
 script_options(ScriptName) ->
     {ok, Sections} = escript:extract(ScriptName, []),

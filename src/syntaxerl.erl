@@ -3,6 +3,11 @@
 -export([behaviour_info/1]).
 -export([main/1]).
 
+-ignore_xref([
+    {behaviour_info, 1},
+    {main, 1}
+]).
+
 -spec behaviour_info(callbacks | any()) -> [{atom(), arity()}] | undefined.
 behaviour_info(callbacks) ->
     [{check_syntax, 2}];

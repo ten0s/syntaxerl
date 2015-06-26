@@ -2,13 +2,16 @@
 
 REBAR=./rebar
 
-all: compile escriptize
+all: escriptize
 
-escriptize: compile
+escriptize: compile xref
 	@$(REBAR) escriptize
 
 compile:
 	@$(REBAR) compile
+
+xref: compile
+	@$(REBAR) xref skip_deps=true
 
 clean:
 	@$(REBAR) clean

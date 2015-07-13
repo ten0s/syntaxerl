@@ -1,5 +1,5 @@
 language: erlang
-script: "make"
+script: "make && ./syntaxerl --help"
 otp_release:
   - R15B03
   - R16B03-1

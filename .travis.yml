@@ -1,7 +1,10 @@
 language: erlang
 script: "make"
 otp_release:
-  - R15B03
+  - R15B03-1
+  - R16B03-1
+  - 17.5
+  - 18.0
 notifications:
   email:
     - dm.klionsky@gmail.com

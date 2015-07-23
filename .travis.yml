@@ -1,6 +1,6 @@
 language: erlang
 sudo: false
-script: "make && ./syntaxerl --help"
+script: "make && make test"
 otp_release:
   - R15B03
   - R16B03-1

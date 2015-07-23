@@ -62,11 +62,9 @@ deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts) ->
     UniqErlcOpts = uniq(ErlcStdOpts ++ ErlcOpts),
     {UniqDepsDirs, UniqErlcOpts}.
 
-%% the `file:format_error' returns the error description in the `line: description' format.
-%% here only the `description' is returned.
--spec error_description({Line::integer(), Mod::module(), Term::term()}) -> string().
-error_description(Error) ->
-    tl(lists:dropwhile(fun(C) -> C =/= 32 end, file:format_error(Error))).
+-spec error_description({Line::integer(), Mod::module(), Error::term()}) -> string().
+error_description({_Line, Mod, Error}) ->
+    Mod:format_error(Error).
 
 -spec print_issues(FileName::file:filename(), Issues::[issue()]) -> ok.
 print_issues(_FileName, []) ->

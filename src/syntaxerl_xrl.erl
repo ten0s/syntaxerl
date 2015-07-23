@@ -45,7 +45,7 @@ format_errors([{_FileName, Errors} | _]) ->
     lists:map(fun format_error/1, FilteredErrors).
 
 format_error({Line, _Mod, _Term} = Error) ->
-    Description = error_description(Error),
+    Description = syntaxerl_utils:error_description(Error),
     FixedLine = fix_line_number(Line),
     {error, FixedLine, Description}.
 
@@ -56,12 +56,6 @@ format_warnings([{_FileName, Warnings} | _]) ->
     lists:map(fun format_warning/1, FilteredWarnings).
 
 format_warning({Line, _Mod, _Term} = Error) ->
-    Description = error_description(Error),
+    Description = syntaxerl_utils:error_description(Error),
     FixedLine = fix_line_number(Line),
     {warning, FixedLine, Description}.
-
-
-%%%%
-
-error_description(Error) ->
-    tl(lists:dropwhile(fun(C) -> C =/= 32 end, leex:format_error(Error))).

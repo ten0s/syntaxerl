@@ -3,7 +3,19 @@
 SyntaxErl
 =========
 
-SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently supports erlang source files (.erl), erlang header files (.hrl), erlang configs (.config, .rel, .script, .app, .app.src), and erlang script files (.erl, .escript). Its main purpose is to be used by tools like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's syntastic https://github.com/scrooloose/syntastic. SyntaxErl uses the Rebar https://github.com/basho/rebar config file to determine correct deps and libs paths. Some generic compile options are hardcoded, others, project specific, are read from the rebar config file. To make it possible for the syntax checker to work its magic, make sure that your project is compiled first (using the Rebar or something) and all the deps are at their places. Sinan https://github.com/erlware/sinan and Emakefile http://www.erlang.org/doc/man/make.html support is also possible to incorporate. Pull requests are welcome.
+SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently
+supports erlang source files (.erl), erlang header files (.hrl), erlang configs
+(.config, .rel, .script, .app, .app.src), escript files (.erl, .escript), leex
+files (.xrl), and yecc files (.yrl). Its main purpose is to be used by tools
+like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's
+syntastic https://github.com/scrooloose/syntastic.
+
+
+SyntaxErl uses the [rebar](https://github.com/basho/rebar) config under the
+hood to determine deps and libs paths. Some common compile options are
+hardcoded, while others project specific are read from the rebar config file.
+For the syntax checker to work correctly, make sure that your project is
+compilable and all the deps are at their places.
 
 Building
 --------
@@ -50,7 +62,7 @@ Usage: syntaxerl [-d | --debug] <FILENAME>
 ;;; erlang-mode
 ;;;----------------------------------------
 
-(setq erlang-root-dir "/opt/otp-r15b01/lib/erlang")
+(setq erlang-root-dir "/opt/r16b03-1")
 (setq load-path (cons (car (file-expand-wildcards (concat erlang-root-dir "/lib/tools-*/emacs"))) load-path))
 (setq erlang-electric-commands nil)
 (require 'erlang-start)
@@ -66,6 +78,8 @@ Usage: syntaxerl [-d | --debug] <FILENAME>
 (add-to-list 'auto-mode-alist '(".*\\.rel\\'" . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.script\\'" . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.escript\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*\\.xrl\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*\\.yrl\\'" . erlang-mode))
 
 ; add include directory to default compile path.
 (defvar erlang-compile-extra-opts
@@ -102,6 +116,8 @@ Usage: syntaxerl [-d | --debug] <FILENAME>
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.rel\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.script\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.escript\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.xrl\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.yrl\\'" flymake-syntaxerl))
 
 	 ;; should be the last.
 	 (flymake-mode 1)

@@ -1,4 +1,4 @@
-.PHONY: doc
+.PHONY: doc test
 
 REBAR=./rebar
 
@@ -15,6 +15,9 @@ xref: compile
 
 clean:
 	@$(REBAR) clean
+
+test:
+	@test/test.sh
 
 tags:
 	@find . -name "*.[e,h]rl" -print | etags -

@@ -2,7 +2,13 @@
 -author("Dmitry Klionsky <dm.klionsky@gmail.com>").
 
 -behaviour(syntaxerl).
--export([check_syntax/2]).
+
+-export([
+    check_syntax/2,
+    output_error/1,
+    output_warning/1
+
+]).
 
 -include("check_syntax_spec.hrl").
 
@@ -38,13 +44,17 @@ check_syntax(FileName, Debug) ->
                         {ok, _ModuleName} ->
                             {ok, []};
                         {ok, _ModuleName, Warnings} ->
-                            {ok, format_warnings(Warnings)};
+                            {ok, syntaxerl_format:format_warnings(
+                                    ?MODULE, fix_line_numbers(Warnings))};
                         {error, Errors, Warnings} ->
-                            case format_errors(Errors) of
+                            case syntaxerl_format:format_errors(
+                                    ?MODULE, fix_line_numbers(Errors)) of
                                 [] ->
-                                    {ok, format_warnings(Warnings)};
+                                    {ok, syntaxerl_format:format_warnings(
+                                            ?MODULE, fix_line_numbers(Warnings))};
                                 Errors2 ->
-                                    {error, Errors2 ++ format_warnings(Warnings)}
+                                    {error, Errors2 ++ syntaxerl_format:format_warnings(
+                                        ?MODULE, fix_line_numbers(Warnings))}
                             end
                     end;
                 {error, Reason} ->
@@ -53,10 +63,6 @@ check_syntax(FileName, Debug) ->
         {error, Reason} ->
             {error, [{error, file:format_error(Reason)}]}
     end.
-
-%% ===================================================================
-%% Internal
-%% ===================================================================
 
 %% skip errors that might occur in pure header files.
 output_error({_, _, {spec_fun_undefined, _}}) -> false;
@@ -67,28 +73,14 @@ output_warning({_, _, {unused_record, _}}) -> false;
 output_warning({_, _, {unused_type, _}}) -> false;
 output_warning(_) -> true.
 
+%% ===================================================================
+%% Internal
+%% ===================================================================
+
+fix_line_numbers(ErrorList) ->
+    [{F, [{fix_line_number(L), M, E} || {L, M, E} <- Es]}
+     || {F, Es} <- ErrorList].
+
 %% appropriately fix line numbers due to the `-module' definition.
 fix_line_number(none) -> 1;
 fix_line_number(Line) -> Line - 1.
-
-format_errors([]) ->
-    [];
-format_errors([{_FileName, Errors} | _]) ->
-    FilteredErrors = lists:filter(fun output_error/1, Errors),
-    lists:map(fun format_error/1, FilteredErrors).
-
-format_error({Line, _Mod, _Term} = Error) ->
-    Description = syntaxerl_utils:error_description(Error),
-    FixedLine = fix_line_number(Line),
-    {error, FixedLine, Description}.
-
-format_warnings([]) ->
-    [];
-format_warnings([{_FileName, Warnings} | _]) ->
-    FilteredWarnings = lists:filter(fun output_warning/1, Warnings),
-    lists:map(fun format_warning/1, FilteredWarnings).
-
-format_warning({Line, _Mod, _Term} = Error) ->
-    Description = syntaxerl_utils:error_description(Error),
-    FixedLine = fix_line_number(Line),
-    {warning, FixedLine, Description}.

@@ -3,7 +3,6 @@
 
 -export([
     incls_deps_opts/1,
-    error_description/1,
     print_issues/2
 ]).
 
@@ -61,10 +60,6 @@ deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts) ->
     UniqDepsDirs = uniq(OtpStdDirs ++ DepsDirs),
     UniqErlcOpts = uniq(ErlcStdOpts ++ ErlcOpts),
     {UniqDepsDirs, UniqErlcOpts}.
-
--spec error_description({Line::integer(), Mod::module(), Error::term()}) -> string().
-error_description({_Line, Mod, Error}) ->
-    Mod:format_error(Error).
 
 -spec print_issues(FileName::file:filename(), Issues::[issue()]) -> ok.
 print_issues(_FileName, []) ->

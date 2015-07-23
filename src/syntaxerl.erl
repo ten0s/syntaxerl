@@ -9,8 +9,11 @@
 ]).
 
 -spec behaviour_info(callbacks | any()) -> [{atom(), arity()}] | undefined.
-behaviour_info(callbacks) ->
-    [{check_syntax, 2}];
+behaviour_info(callbacks) -> [
+    {check_syntax, 2},
+    {output_error, 1},
+    {output_warning, 1}
+];
 behaviour_info(_) ->
     undefined.
 

@@ -2,7 +2,12 @@
 -author("Dmitry Klionsky <dm.klionsky@gmail.com>").
 
 -behaviour(syntaxerl).
--export([check_syntax/2]).
+
+-export([
+    check_syntax/2,
+    output_error/1,
+    output_warning/1
+]).
 
 -include("check_syntax_spec.hrl").
 
@@ -18,3 +23,7 @@ check_syntax(FileName, _Debug) ->
             %% unfortunately the `file:eval' returns only the first error.
             {ok, [{error, file:format_error(Error)}]}
     end.
+
+output_error(_) -> true.
+
+output_warning(_) -> true.

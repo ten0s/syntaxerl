@@ -93,6 +93,7 @@ Usage: syntaxerl [-d | --debug] <FILENAME>
 ;;;----------------------------------------
 
 (require 'flymake)
+(require 'flymake-cursor) ; http://www.emacswiki.org/emacs/FlymakeCursor
 (setq flymake-log-level 3)
 
 (defun flymake-compile-script-path (path)
@@ -110,18 +111,31 @@ Usage: syntaxerl [-d | --debug] <FILENAME>
   '(lambda()
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.erl\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.hrl\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.xrl\\'" flymake-syntaxerl))
+	 (add-to-list 'flymake-allowed-file-name-masks '("\\.yrl\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.app\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.app.src\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.config\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.rel\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.script\\'" flymake-syntaxerl))
 	 (add-to-list 'flymake-allowed-file-name-masks '("\\.escript\\'" flymake-syntaxerl))
-	 (add-to-list 'flymake-allowed-file-name-masks '("\\.xrl\\'" flymake-syntaxerl))
-	 (add-to-list 'flymake-allowed-file-name-masks '("\\.yrl\\'" flymake-syntaxerl))
 
 	 ;; should be the last.
 	 (flymake-mode 1)
 ))
+
+; see /usr/local/lib/erlang/lib/tools-<Ver>/emacs/erlang-flymake.erl
+(defun erlang-flymake-only-on-save ()
+  "Trigger flymake only when the buffer is saved (disables syntax
+check on newline and when there are no changes)."
+  (interactive)
+  ;; There doesn't seem to be a way of disabling this; set to the
+  ;; largest int available as a workaround (most-positive-fixnum
+  ;; equates to 8.5 years on my machine, so it ought to be enough ;-) )
+  (setq flymake-no-changes-timeout most-positive-fixnum)
+  (setq flymake-start-syntax-check-on-newline nil))
+
+(erlang-flymake-only-on-save)
 ```
 
 #### Erlang-flymake

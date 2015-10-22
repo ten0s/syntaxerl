@@ -18,7 +18,7 @@ incls_deps_opts(FileName) ->
     AbsFileName = filename:absname(FileName),
     BaseDir = filename:dirname(filename:dirname(AbsFileName)),
 
-    StdOtpDirs = absdirs(BaseDir, ["./include", "./deps"]),
+    StdOtpDirs = absdirs(BaseDir, ["./include", "./deps", "./_build/default/lib"]),
     StdErlcOpts = [
         strong_validation,
 

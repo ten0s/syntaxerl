@@ -78,6 +78,7 @@ Usage: syntaxerl [-d | --debug] <FILENAME>
 (add-to-list 'auto-mode-alist '(".*\\.rel\\'"     . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.script\\'"  . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.escript\\'" . erlang-mode))
+(add-to-list 'auto-mode-alist '(".*\\.es\\'"      . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.xrl\\'"     . erlang-mode))
 (add-to-list 'auto-mode-alist '(".*\\.yrl\\'"     . erlang-mode))
 
@@ -119,6 +120,7 @@ Usage: syntaxerl [-d | --debug] <FILENAME>
      (add-to-list 'flymake-allowed-file-name-masks '("\\.rel\\'"     flymake-syntaxerl))
      (add-to-list 'flymake-allowed-file-name-masks '("\\.script\\'"  flymake-syntaxerl))
      (add-to-list 'flymake-allowed-file-name-masks '("\\.escript\\'" flymake-syntaxerl))
+     (add-to-list 'flymake-allowed-file-name-masks '("\\.es\\'"      flymake-syntaxerl))
 
      ;; should be the last.
      (flymake-mode 1)

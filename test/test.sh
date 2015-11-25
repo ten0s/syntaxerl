@@ -45,6 +45,10 @@ check escript_ok.erl      code 0 w/ ""
 check escript_warning.erl code 0 w/ "escript_warning.erl:5: warning: missing specification for function main/1"
 check escript_error.erl   code 1 w/ "escript_error.erl:7: function main/1 already defined"
 
+check escript_ok.es      code 0 w/ ""
+check escript_warning.es code 0 w/ "escript_warning.es:5: warning: missing specification for function main/1"
+check escript_error.es   code 1 w/ "escript_error.es:7: function main/1 already defined"
+
 check escript_ok.escript      code 0 w/ ""
 check escript_warning.escript code 0 w/ "escript_warning.escript:5: warning: missing specification for function main/1"
 check escript_error.escript   code 1 w/ "escript_error.escript:7: function main/1 already defined"

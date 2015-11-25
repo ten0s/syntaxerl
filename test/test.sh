@@ -41,4 +41,12 @@ check hrl_ok.hrl      code 0 w/ ""
 check hrl_warning.hrl code 0 w/ "hrl_warning.hrl:4: warning: function test/0 is unused"
 check hrl_error.hrl   code 1 w/ "hrl_error.hrl:4: syntax error before: '}'"
 
+check escript_ok.erl      code 0 w/ ""
+check escript_warning.erl code 0 w/ "escript_warning.erl:5: warning: missing specification for function main/1"
+check escript_error.erl   code 1 w/ "escript_error.erl:7: function main/1 already defined"
+
+check escript_ok.escript      code 0 w/ ""
+check escript_warning.escript code 0 w/ "escript_warning.escript:5: warning: missing specification for function main/1"
+check escript_error.escript   code 1 w/ "escript_error.escript:7: function main/1 already defined"
+
 exit ${EXIT}

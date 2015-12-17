@@ -46,7 +46,7 @@ Usage
 
 ```sh
 $ syntaxerl
-Syntax checker for Erlang (0.10.0)
+Syntax checker for Erlang (0.11.0)
 Usage: syntaxerl [-d | --debug] <FILENAME>
        syntaxerl <-h | --help>
   -d, --debug    Enable debug output

@@ -53,4 +53,6 @@ check escript_ok.escript      code 0 w/ ""
 check escript_warning.escript code 0 w/ "escript_warning.escript:5: warning: missing specification for function main/1"
 check escript_error.escript   code 1 w/ "escript_error.escript:7: function main/1 already defined"
 
+check escript_with_module_ok.escript code 0 w/ ""
+
 exit ${EXIT}

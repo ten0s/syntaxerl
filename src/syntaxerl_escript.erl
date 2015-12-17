@@ -18,9 +18,16 @@
 check_syntax(FileName, Debug) ->
     case file:read_file(FileName) of
         {ok, Content} ->
-            %% replace shebang line with module definition.
-            NewContent = re:replace(Content, <<"#.*">>, <<"-module(fixed_escript).">>),
-            %% make a new file name.
+            ShebangRepl =
+                case re:run(Content, <<"-module">>) of
+                    {match, _} ->
+                        %% module attribute is defined. just remote shebang
+                        <<>>;
+                    nomatch ->
+                        %% replace shebang line with module attribute
+                        <<"-module(fixed_escript).">>
+                end,
+            NewContent = re:replace(Content, <<"#.*">>, ShebangRepl),
             NewFileName = filename:rootname(FileName, ".erl") ++ "_fixed.erl",
             case file:write_file(NewFileName, NewContent) of
                 ok ->

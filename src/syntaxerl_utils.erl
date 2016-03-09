@@ -3,7 +3,8 @@
 
 -export([
     incls_deps_opts/1,
-    print_issues/2
+    print_issues/2,
+    consult_file/1
 ]).
 
 -include("issues_spec.hrl").
@@ -75,6 +76,22 @@ print_issue(FileName, {error, Description}) ->
 print_issue(FileName, {error, Line, Description}) ->
     io:format("~s:~p: ~s~n", [FileName, Line, Description]).
 
+-spec consult_file(file:filename()) -> {ok, term()} | {error, error()}.
+consult_file(File) ->
+    case filename:extension(File) of
+        ".script" ->
+            consult_and_eval(remove_script_ext(File), File);
+        _ ->
+            Script = File ++ ".script",
+            case filelib:is_regular(Script) of
+                true ->
+                    consult_and_eval(File, Script);
+                false ->
+                    file:consult(File)
+            end
+    end.
+
+
 %% ===================================================================
 %% API
 %% ===================================================================
@@ -109,20 +126,6 @@ rebar_deps_opts(BaseDir) ->
             end;
         false ->
             rebar_deps_opts(filename:dirname(BaseDir))
-    end.
-
-consult_file(File) ->
-    case filename:extension(File) of
-        ".script" ->
-            consult_and_eval(remove_script_ext(File), File);
-        _ ->
-            Script = File ++ ".script",
-            case filelib:is_regular(Script) of
-                true ->
-                    consult_and_eval(File, Script);
-                false ->
-                    file:consult(File)
-            end
     end.
 
 consult_and_eval(File, Script) ->

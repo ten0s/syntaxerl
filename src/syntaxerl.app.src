@@ -15,6 +15,7 @@
         {[{suffix, ".erl"}]         , syntaxerl_erl},
         {[{suffix, ".xrl"}]         , syntaxerl_xrl},
         {[{suffix, ".yrl"}]         , syntaxerl_yrl},
+        {[{suffix, ".script"}]      , syntaxerl_script},
         {[],                          syntaxerl_terms}
     ]}
 ]}.

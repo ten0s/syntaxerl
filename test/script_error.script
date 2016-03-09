@@ -1,0 +1,12 @@
+case os:getenv("REBAR_EXTRA_DEPS") of
+    false ->
+        CONFIG;
+    _ ->
+        case lists:keysearch(deps, 1, CONFIG) of
+            {value, {deps, Deps}} ->
+                NDeps = Deps ++ ExtraDeps,
+                lists:keyreplace(deps, 1, CONFIG, {deps, NDeps});
+            false ->
+                CONFIG ++ [{deps, ExtraDeps}]
+        end
+end.

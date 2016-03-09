@@ -55,4 +55,7 @@ check escript_error.escript   code 1 w/ "escript_error.escript:7: function main/
 
 check escript_with_module_ok.escript code 0 w/ ""
 
+check script_ok.script code 0 w/ ""
+check script_error.script code 1 w/ "{unbound_var,'ExtraDeps'}"
+
 exit ${EXIT}

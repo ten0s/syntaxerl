@@ -21,7 +21,7 @@ check_syntax(FileName, _Debug) ->
             {ok, []};
         {error, Error} ->
             %% unfortunately the `file:eval' returns only the first error.
-            {ok, [{error, file:format_error(Error)}]}
+            {error, [{error, file:format_error(Error)}]}
     end.
 
 output_error(_) -> true.

@@ -2,3 +2,4 @@ ebin/
 priv/
 syntaxerl
 TAGS
+.syntaxerl.plt

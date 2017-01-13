@@ -11,11 +11,12 @@ like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's
 syntastic https://github.com/scrooloose/syntastic.
 
 
-SyntaxErl uses the [rebar](https://github.com/basho/rebar) config under the
-hood to determine deps and libs paths. Some common compile options are
-hardcoded, while others project specific are read from the rebar config file.
-For the syntax checker to work correctly, make sure that your project is
-compilable and all the deps are at their places.
+SyntaxErl uses [rebar](https://github.com/basho/rebar) or
+[erlang.mk](https://erlang.mk) configs under the hood to determine deps and
+libs paths. Some common compile options are hardcoded, while others project
+specific are read from the config files. For the syntax checker to work
+correctly, make sure that your project is compilable and all the deps are at
+their places.
 
 Building
 --------

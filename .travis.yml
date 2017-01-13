@@ -5,7 +5,8 @@ otp_release:
   - R15B03
   - R16B03-1
   - 17.5
-  - 18.0
+  - 18.3
+  - 19.1
 notifications:
   email:
     - dm.klionsky@gmail.com

@@ -118,9 +118,7 @@ which_compile_opts_profile(File) ->
 which_build_tool("/") ->
     undefined;
 which_build_tool(BaseDir) ->
-    %% rebar specific begin
     RebarConfig = filename:join(BaseDir, "rebar.config"),
-    %% rebar specific end
     case filelib:is_file(RebarConfig) of
         true ->
             {rebar, BaseDir};
@@ -137,20 +135,16 @@ which_build_tool(BaseDir) ->
 rebar_deps_opts("/") ->
     {error, not_found};
 rebar_deps_opts(BaseDir) ->
-    %% rebar specific begin
     RebarConfig = filename:join(BaseDir, "rebar.config"),
-    %% rebar specific end
     case filelib:is_file(RebarConfig) of
         true ->
             case consult_file(RebarConfig) of
                 {ok, Terms} ->
-                    %% rebar specific begin
                     ErlcOpts = proplists:get_value(erl_opts, Terms, []),
 
                     LibDirs = proplists:get_value(lib_dirs, Terms, []),
                     DepsDir = proplists:get_value(deps_dir, Terms, "deps"),
                     LocalDirs = LibDirs ++ [DepsDir] ++  proplists:get_all_values(i, ErlcOpts),
-                    %% rebar specific end
 
                     %% try to find recursively configs in parents directories.
                     case rebar_deps_opts(filename:dirname(BaseDir)) of

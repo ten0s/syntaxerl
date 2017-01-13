@@ -61,5 +61,6 @@ check script_error.script code 1 w/ "{unbound_var,'ExtraDeps'}"
 check terms_ok.config code 0 w/ ""
 check terms_error.config code 1 w/ "terms_error.config:10: syntax error before: '{'"
 
+check projects/default/src/src.erl code 0 w/ ""
 
 exit ${EXIT}

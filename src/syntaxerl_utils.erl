@@ -50,6 +50,8 @@ incls_deps_opts(FileName) ->
     Profile = which_compile_opts_profile(AbsFileName),
     {DepsDirs, ErlcOpts} = deps_opts(AppDir, StdOtpDirs, StdErlcOpts, Profile),
 
+    ok = add_deps_paths(StdOtpDirs),
+
     {_, EbinDirs} = lists:mapfoldr(fun(Dir, Acc) -> {0, filelib:wildcard(Dir ++ "/*/ebin") ++ Acc} end, [], DepsDirs),
     IncDirs = lists:map(fun(Dir) -> {i, Dir} end, DepsDirs),
     {IncDirs, EbinDirs, ErlcOpts}.
@@ -96,6 +98,23 @@ include_dirs(AbsFileName, AppDir, ProjectDir) ->
     BuildDepsDir = filename:join(ProjectDir, "deps"),
     DepsDirs = [ filename:join(ProjectDir, Dir) || Dir <- ?REBAR3DEPSDIRS ],
     [SrcDir, IncludeDir, BuildDepsDir | DepsDirs].
+
+-spec add_deps_paths(Dir::[file:name()]) -> ok.
+add_deps_paths(Dirs) ->
+    lists:foreach(fun (Dir) ->
+        case file:list_dir(Dir) of
+            {ok, Deps} ->
+                lists:foreach(fun (Dep) ->
+                    EBin = filename:join([Dir, Dep, "ebin"]),
+                    case filelib:is_dir(EBin) of
+                        true -> code:add_path(EBin);
+                        false -> ok
+                    end
+                end, Deps);
+            {error, _Error} ->
+                ok
+        end
+    end, Dirs).
 
 -spec deps_opts(BaseDir::file:name(), OtpStdDirs::[file:name()], ErlcStdOpts::[term()], normal | test) -> {[file:name()], [term()]}.
 deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts, Profile) ->

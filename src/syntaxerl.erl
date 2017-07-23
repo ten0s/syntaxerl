@@ -8,7 +8,7 @@
 ]).
 
 -include("issues_spec.hrl").
--callback check_syntax(FileName::file:filename(), Debug::boolean()) ->
+-callback check_syntax(FileName::file:filename(), BaseFileName::file:filename(), Debug::boolean()) ->
     {ok, [warning() | error()]} | {error, [error()]}.
 -callback output_error(ErrorInfo::error_info()) -> boolean().
 -callback output_warning(ErrorInfo::error_info()) -> boolean().
@@ -21,42 +21,55 @@
 %% API
 %% ===================================================================
 
+-record(opts, {
+    filename :: file:filename() | undefined,
+    base :: file:filename() | undefined,
+    debug = false :: boolean()
+}).
+
+
 -spec main([string()]) -> no_return().
-main([""]) ->
+main(Args) ->
+    Opts = parse_args(Args, #opts{}),
+    #opts{filename = FileName, base = BaseFileName, debug = Debug} = Opts,
+    check_syntax(FileName, BaseFileName, Debug).
+
+parse_args([], #opts{filename=undefined}) ->
     usage(?EXIT_FAILURE);
-main(["-h"]) ->
+parse_args([], Opts = #opts{base=undefined, filename=FileName}) ->
+    Opts#opts{base=FileName};
+parse_args([], Opts) ->
+    Opts;
+parse_args([D | Args], Opts) when D =:= "-d"; D =:= "--debug" ->
+    parse_args(Args, Opts#opts{debug=true});
+parse_args([H | _Args], _Opts) when H =:= "-h"; H =:= "--help" ->
     usage(?EXIT_SUCCESS);
-main(["--help"]) ->
-    usage(?EXIT_SUCCESS);
-main(["-d"]) ->
-    usage(?EXIT_FAILURE);
-main(["--debug"]) ->
-    usage(?EXIT_FAILURE);
-main([FileName]) ->
-    check_syntax(FileName, false);
-main([FileName, "-d"]) ->
-    check_syntax(FileName, true);
-main(["-d", FileName]) ->
-    check_syntax(FileName, true);
-main([FileName, "--debug"]) ->
-    check_syntax(FileName, true);
-main(["--debug", FileName]) ->
-    check_syntax(FileName, true);
-main(_) ->
+parse_args([B | Args], Opts) when B =:= "-b"; B =:= "--base" ->
+    case {Args, Opts} of
+        {[BaseFileName | Args0], #opts{base=undefined}} ->
+            parse_args(Args0, Opts#opts{base=BaseFileName});
+        {_Args, _Opts} ->
+            usage(?EXIT_FAILURE)
+    end;
+parse_args([FileName | Args], Opts = #opts{filename=undefined}) ->
+    parse_args(Args, Opts#opts{filename=FileName});
+parse_args(["--", FileName | Args], Opts = #opts{filename=undefined}) ->
+    parse_args(Args, Opts#opts{filename=FileName});
+parse_args(_Args, _Opts) ->
     usage(?EXIT_FAILURE).
 
 %% ===================================================================
 %% Internal
 %% ===================================================================
 
--spec check_syntax(string(), boolean()) -> exit_code().
-check_syntax(FileName, Debug) ->
+-spec check_syntax(string(), string(), boolean()) -> exit_code().
+check_syntax(FileName, BaseFileName, Debug) ->
     ScriptName = escript:script_name(),
     HandlerPatterns = handler_patterns(ScriptName),
     syntaxerl_logger:debug(Debug, "Handler patterns: ~p", [HandlerPatterns]),
     Handler = choose_handler(FileName, HandlerPatterns),
     syntaxerl_logger:debug(Debug, "Selected handler: ~p", [Handler]),
-    case Handler:check_syntax(FileName, Debug) of
+    case Handler:check_syntax(FileName, BaseFileName, Debug) of
         {ok, Issues} ->
             syntaxerl_utils:print_issues(FileName, Issues),
             halt(?EXIT_SUCCESS);
@@ -75,8 +88,9 @@ usage(ExitCode) ->
         _ ->
             io:format("~n")
     end,
-    io:format("Usage: ~s [-d | --debug] <FILENAME>~n", [BaseName]),
+    io:format("Usage: ~s [-b | --base <FILENAME>] [-d | --debug] <FILENAME>~n", [BaseName]),
     io:format("       ~s <-h | --help>~n", [BaseName]),
+    io:format("  -b, --base     Set original filename~n"),
     io:format("  -d, --debug    Enable debug output~n"),
     io:format("  -h, --help     Show this message~n"),
     halt(ExitCode).

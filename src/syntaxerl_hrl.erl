@@ -4,10 +4,9 @@
 -behaviour(syntaxerl).
 
 -export([
-    check_syntax/2,
+    check_syntax/3,
     output_error/1,
     output_warning/1
-
 ]).
 
 -include("check_syntax_spec.hrl").
@@ -16,7 +15,7 @@
 %% API
 %% ===================================================================
 
-check_syntax(FileName, Debug) ->
+check_syntax(FileName, BaseFileName, Debug) ->
     case file:read_file(FileName) of
         {ok, Content} ->
             %% precede with the module name, so now this is a real erlang module.
@@ -28,7 +27,7 @@ check_syntax(FileName, Debug) ->
             NewFileName = FileName ++ ".erl",
             case file:write_file(NewFileName, NewContent) of
                 ok ->
-                    {InclDirs, DepsDirs, ErlcOpts} = syntaxerl_utils:incls_deps_opts(FileName),
+                    {InclDirs, DepsDirs, ErlcOpts} = syntaxerl_utils:incls_deps_opts(BaseFileName),
                     syntaxerl_logger:debug(Debug, "Include dirs: ~p", [InclDirs]),
                     syntaxerl_logger:debug(Debug, "Deps dirs: ~p", [DepsDirs]),
                     syntaxerl_logger:debug(Debug, "Erlc opts: ~p", [ErlcOpts]),

@@ -209,7 +209,7 @@ rebar_deps_opts(BaseDir) ->
         true ->
             case consult_file(RebarConfig) of
                 {ok, Terms} ->
-                    ErlcOpts = proplists:get_value(erl_opts, Terms, []),
+                    ErlcOpts = rebar_erl_opts(proplists:get_value(erl_opts, Terms, [])),
 
                     RebarLibDirs = proplists:get_value(lib_dirs, Terms, []),
                     RebarDepsDir = proplists:get_value(deps_dir, Terms, "deps"),
@@ -230,6 +230,48 @@ rebar_deps_opts(BaseDir) ->
             end;
         false ->
             rebar_deps_opts(filename:dirname(BaseDir))
+    end.
+
+-spec rebar_erl_opts(Opts) -> Opts when Opts :: [term()].
+rebar_erl_opts(ErlOpts) ->
+    rebar_erl_opts(ErlOpts, []).
+
+-spec rebar_erl_opts(Opts, Opts) -> Opts when Opts :: [term()].
+rebar_erl_opts([], Acc) ->
+    lists:reverse(Acc);
+rebar_erl_opts([{platform_define, ArchRegex, Key} | ErlOpts], Acc) ->
+    rebar_erl_opts(ErlOpts,
+        case is_arch(ArchRegex) of
+            true -> [{d, Key} | Acc];
+            false -> Acc
+        end);
+rebar_erl_opts([{platform_define, ArchRegex, Key, Value} | ErlOpts], Acc) ->
+    rebar_erl_opts(ErlOpts,
+        case is_arch(ArchRegex) of
+            true -> [{d, Key, Value} | Acc];
+            false -> Acc
+        end);
+rebar_erl_opts([ErlOpt | ErlOpts], Acc) ->
+    rebar_erl_opts(ErlOpts, [ErlOpt | Acc]).
+
+-spec is_arch(ArchRegex :: string()) -> boolean().
+is_arch(ArchRegex) ->
+    re:run(get_arch(), ArchRegex, [{capture, none}]) =:= match.
+
+-spec get_arch() -> string().
+get_arch() ->
+    erlang:system_info(otp_release) ++ "-"
+        ++ erlang:system_info(system_architecture) ++ "-"
+        ++ wordsize().
+
+-spec wordsize() -> string().
+wordsize() ->
+    try erlang:system_info({wordsize, external}) of
+        Val ->
+            integer_to_list(8 * Val)
+    catch
+        error:badarg ->
+            integer_to_list(8 * erlang:system_info(wordsize))
     end.
 
 erlangmk_deps_opts(BaseDir, Profile) ->

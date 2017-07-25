@@ -63,5 +63,6 @@ check terms_error.config code 1 w/ "terms_error.config:10: syntax error before: 
 
 check projects/default/src/src.erl code 0 w/ ""
 check projects/rebar-apps/apps/app1/src/src.erl code 0 w/ ""
+check projects/rebar3-apps/apps/app1/src/src.erl code 0 w/ ""
 
 exit ${EXIT}

@@ -19,7 +19,7 @@ incls_deps_opts(FileName) ->
     AbsFileName = filename:absname(FileName),
     BaseDir = filename:dirname(filename:dirname(AbsFileName)),
 
-    StdOtpDirs = absdirs(BaseDir, ["./include", "./deps", "./_build/default/lib"]),
+    StdOtpDirs = absdirs(BaseDir, ["include", "deps"]),
     StdErlcOpts = [
         strong_validation,
 
@@ -39,13 +39,22 @@ incls_deps_opts(FileName) ->
         return_errors,
         return_warnings
     ],
+    %% keep in sync with Rebar3DepsDirs in rebar_deps_opts/1
+    Rebar3Dirs = [
+        "apps",
+        "lib",
+        "_checkouts",
+        "_build/default/lib",
+        "_build/test/lib"
+    ],
+    DefaultDirs = StdOtpDirs ++ Rebar3Dirs,
 
     Profile = which_compile_opts_profile(AbsFileName),
-    {DepsDirs, ErlcOpts} = deps_opts(BaseDir, StdOtpDirs, StdErlcOpts, Profile),
+    {DepsDirs, ErlcOpts} = deps_opts(BaseDir, DefaultDirs, StdErlcOpts, Profile),
 
     {_, EbinDirs} = lists:mapfoldr(fun(Dir, Acc) -> {0, filelib:wildcard(Dir ++ "/*/ebin") ++ Acc} end, [], DepsDirs),
-    IncludeDirs = lists:map(fun(Dir) -> {i, Dir} end, DepsDirs),
-    {IncludeDirs, EbinDirs, ErlcOpts}.
+    IncDirs = lists:map(fun(Dir) -> {i, Dir} end, DepsDirs),
+    {IncDirs, EbinDirs, ErlcOpts}.
 
 -spec deps_opts(BaseDir::file:name(), OtpStdDirs::[file:name()], ErlcStdOpts::[term()], normal | test) -> {[file:name()], [term()]}.
 deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts, Profile) ->
@@ -142,9 +151,20 @@ rebar_deps_opts(BaseDir) ->
                 {ok, Terms} ->
                     ErlcOpts = proplists:get_value(erl_opts, Terms, []),
 
-                    LibDirs = proplists:get_value(lib_dirs, Terms, []),
-                    DepsDir = proplists:get_value(deps_dir, Terms, "deps"),
-                    LocalDirs = LibDirs ++ [DepsDir] ++  proplists:get_all_values(i, ErlcOpts),
+                    RebarLibDirs = proplists:get_value(lib_dirs, Terms, []),
+                    RebarDepsDir = proplists:get_value(deps_dir, Terms, "deps"),
+                    %% keep in sync with Rebar3Dirs in incls_deps_opts/1
+                    Rebar3DepsDir = [
+                        "apps",
+                        "lib",
+                        "_checkouts",
+                        "_build/default/lib",
+                        "_build/test/lib"
+                    ],
+                    LocalDirs = RebarLibDirs
+                             ++ [RebarDepsDir]
+                             ++ Rebar3DepsDir
+                             ++ proplists:get_all_values(i, ErlcOpts),
 
                     %% try to find recursively configs in parents directories.
                     case rebar_deps_opts(filename:dirname(BaseDir)) of

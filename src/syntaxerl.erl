@@ -7,28 +7,11 @@
     {main, 1}
 ]).
 
--ifdef(NO_CALLBACK_ATTRIBUTE).
-
--export([behaviour_info/1]).
-
--spec behaviour_info(callbacks | any()) -> [{atom(), arity()}] | undefined.
-behaviour_info(callbacks) -> [
-    {check_syntax, 2},
-    {output_error, 1},
-    {output_warning, 1}
-];
-behaviour_info(_) ->
-    undefined.
-
--else.
-
 -include("issues_spec.hrl").
 -callback check_syntax(FileName::file:filename(), Debug::boolean()) ->
     {ok, [warning() | error()]} | {error, [error()]}.
 -callback output_error(ErrorInfo::error_info()) -> boolean().
 -callback output_warning(ErrorInfo::error_info()) -> boolean().
-
--endif.
 
 -define(EXIT_SUCCESS, 0).
 -define(EXIT_FAILURE, 1).

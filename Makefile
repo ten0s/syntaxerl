@@ -1,39 +1,28 @@
 .PHONY: doc test
 
-REBAR=./rebar
-
-NAME=syntaxerl
-OTP_PLT=~/.r18.3.plt
-PRJ_PLT=.$(NAME).plt
+REBAR3=./rebar3
 
 all: escriptize
 
 escriptize: compile xref
-	@$(REBAR) escriptize
+	$(REBAR3) escriptize
+	ln -fs _build/default/bin/syntaxerl syntaxerl
 
 compile:
-	@$(REBAR) compile
+	$(REBAR3) compile
 
 xref: compile
-	@$(REBAR) xref skip_deps=true
+	$(REBAR3) xref
 
-dialyze: $(OTP_PLT) compile xref $(PRJ_PLT)
-	@dialyzer --plt $(PRJ_PLT) -r ./ebin/ -Wno_improper_lists
-
-$(OTP_PLT):
-	@dialyzer --build_plt --output_plt $(OTP_PLT) --apps kernel stdlib erts   \
-		crypto public_key mnesia sasl common_test eunit ssh ssl asn1 compiler \
-		parsetools syntax_tools tools inets snmp xmerl
-
-$(PRJ_PLT):
-	@dialyzer --add_to_plt --plt $(OTP_PLT) --output_plt $(PRJ_PLT) \
-		-r ./ebin/ || true
+dialyze:
+	$(REBAR3) dialyzer
 
 clean:
-	@$(REBAR) clean
+	$(REBAR3) clean
+	rm -f syntaxerl
 
 test:
-	@test/test.sh
+	test/test.sh
 
 tags:
-	@find . -name "*.[e,h]rl" -print | etags -
+	find . -name "*.[e,h]rl" -print | etags -

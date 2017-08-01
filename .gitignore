@@ -1,5 +1,3 @@
-ebin/
-priv/
+_build
 syntaxerl
 TAGS
-.syntaxerl.plt

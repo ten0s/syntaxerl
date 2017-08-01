@@ -83,10 +83,10 @@ usage(ExitCode) ->
 
 script_options(ScriptName) ->
     {ok, Sections} = escript:extract(ScriptName, []),
-    ZipArchive = proplists:get_value(archive, Sections),
-    AppName = lists:flatten(io_lib:format("~p.app", [?MODULE])),
-    case zip:extract(ZipArchive, [{file_list, [AppName]}, memory]) of
-        {ok, [{AppName, Binary}]} ->
+    Archive = proplists:get_value(archive, Sections),
+    AppFile = lists:flatten(io_lib:format("~p/ebin/~p.app", [?MODULE, ?MODULE])),
+    case zip:extract(Archive, [{file_list, [AppFile]}, memory]) of
+        {ok, [{_, Binary}]} ->
             {ok, Tokens, _} = erl_scan:string(binary_to_list(Binary)),
             {ok, {application, ?MODULE, Options}} = erl_parse:parse_term(Tokens),
             Options;

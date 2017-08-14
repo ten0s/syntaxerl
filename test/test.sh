@@ -55,6 +55,8 @@ check escript_error.escript   code 1 w/ "escript_error.escript:7: function main/
 
 check escript_with_module_ok.escript code 0 w/ ""
 
+check escript_no_main.escript code 0 w/ ""
+
 check script_ok.script code 0 w/ ""
 check script_error.script code 1 w/ "{unbound_var,'ExtraDeps'}"
 
@@ -64,5 +66,8 @@ check terms_error.config code 1 w/ "terms_error.config:10: syntax error before: 
 check projects/default/src/src.erl code 0 w/ ""
 check projects/rebar-apps/apps/app1/src/src.erl code 0 w/ ""
 check projects/rebar3-apps/apps/app1/src/src.erl code 0 w/ ""
+check projects/rebar3-apps/apps/app1/src/subdir/subsrc.erl code 0 w/ ""
+check projects/rebar3-apps/_build/default/lib/lib2/src/src.erl code 0 w/ ""
+check projects/rebar3-apps/apps/app1/src/types.erl code 0 w/ ""
 
 exit ${EXIT}

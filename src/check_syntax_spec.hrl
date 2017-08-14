@@ -3,7 +3,7 @@
 
 -include("issues_spec.hrl").
 
--spec check_syntax(FileName::file:filename(), Debug::boolean()) ->
+-spec check_syntax(FileName::file:filename(), BaseFileName::file:filename(), Debug::boolean()) ->
     {ok, [warning() | error()]} | {error, [error()]}.
 
 -spec output_error(ErrorInfo::error_info()) -> boolean().

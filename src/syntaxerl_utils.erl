@@ -9,6 +9,14 @@
 
 -include("issues_spec.hrl").
 
+-define(REBAR3DEPSDIRS, [
+    "apps",
+    "lib",
+    "_checkouts",
+    "_build/default/lib",
+    "_build/test/lib"
+]).
+
 %% ===================================================================
 %% API
 %% ===================================================================
@@ -17,9 +25,9 @@
     {InclDirs::[file:name()], EbinDirs::[file:name()], ErlcOpts::[term()]}.
 incls_deps_opts(FileName) ->
     AbsFileName = filename:absname(FileName),
-    BaseDir = filename:dirname(filename:dirname(AbsFileName)),
-
-    StdOtpDirs = absdirs(BaseDir, ["include", "deps"]),
+    AppDir = appdir(AbsFileName),
+    ProjectDir = projectdir(AppDir),
+    StdOtpDirs = include_dirs(AbsFileName, AppDir, ProjectDir),
     StdErlcOpts = [
         strong_validation,
 
@@ -39,22 +47,74 @@ incls_deps_opts(FileName) ->
         return_errors,
         return_warnings
     ],
-    %% keep in sync with Rebar3DepsDirs in rebar_deps_opts/1
-    Rebar3Dirs = [
-        "apps",
-        "lib",
-        "_checkouts",
-        "_build/default/lib",
-        "_build/test/lib"
-    ],
-    DefaultDirs = StdOtpDirs ++ Rebar3Dirs,
-
     Profile = which_compile_opts_profile(AbsFileName),
-    {DepsDirs, ErlcOpts} = deps_opts(BaseDir, DefaultDirs, StdErlcOpts, Profile),
+    {DepsDirs, ErlcOpts} = deps_opts(AppDir, StdOtpDirs, StdErlcOpts, Profile),
+
+    ok = add_deps_paths(StdOtpDirs),
 
     {_, EbinDirs} = lists:mapfoldr(fun(Dir, Acc) -> {0, filelib:wildcard(Dir ++ "/*/ebin") ++ Acc} end, [], DepsDirs),
     IncDirs = lists:map(fun(Dir) -> {i, Dir} end, DepsDirs),
     {IncDirs, EbinDirs, ErlcOpts}.
+
+-spec appdir(AbsFileName::file:name()) -> file:name().
+appdir(AbsFileName) ->
+    appdir(AbsFileName, filename:dirname(AbsFileName)).
+
+-spec appdir(AbsFileName::file:name(), Default::file:name()) -> file:name().
+appdir(AbsFileName, Default) ->
+    AbsFileDir = filename:dirname(AbsFileName),
+    case filename:basename(AbsFileDir) of
+        Dir when Dir =:= "src"; Dir =:= "test"; Dir =:= "include" ->
+            filename:dirname(AbsFileDir);
+        Dir when Dir =/= "" ->
+            appdir(AbsFileDir, Default);
+        _Dir ->
+            Default
+    end.
+
+-spec projectdir(Dir::file:name()) -> file:name().
+projectdir(Dir) ->
+    PDir = filename:dirname(Dir),
+    case filename:basename(PDir) of
+        "apps" ->
+            filename:dirname(PDir);
+        "deps" ->
+            filename:dirname(PDir);
+        "lib" ->
+            BuildDir = filename:dirname(filename:dirname(PDir)),
+            case filename:basename(BuildDir) of
+                "_build" -> filename:dirname(BuildDir);
+                _ -> Dir
+            end;
+        _Dir ->
+            Dir
+    end.
+
+-spec include_dirs(AbsFileName, AppDir, ProjectDir) -> Dirs::[file:name()]
+    when AbsFileName::file:name(), AppDir::file:name(), ProjectDir::file:name().
+include_dirs(AbsFileName, AppDir, ProjectDir) ->
+    SrcDir = filename:dirname(AbsFileName),
+    IncludeDir = filename:join(AppDir, "include"),
+    BuildDepsDir = filename:join(ProjectDir, "deps"),
+    DepsDirs = [ filename:join(ProjectDir, Dir) || Dir <- ?REBAR3DEPSDIRS ],
+    [SrcDir, IncludeDir, BuildDepsDir | DepsDirs].
+
+-spec add_deps_paths(Dir::[file:name()]) -> ok.
+add_deps_paths(Dirs) ->
+    lists:foreach(fun (Dir) ->
+        case file:list_dir(Dir) of
+            {ok, Deps} ->
+                lists:foreach(fun (Dep) ->
+                    EBin = filename:join([Dir, Dep, "ebin"]),
+                    case filelib:is_dir(EBin) of
+                        true -> code:add_path(EBin);
+                        false -> ok
+                    end
+                end, Deps);
+            {error, _Error} ->
+                ok
+        end
+    end, Dirs).
 
 -spec deps_opts(BaseDir::file:name(), OtpStdDirs::[file:name()], ErlcStdOpts::[term()], normal | test) -> {[file:name()], [term()]}.
 deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts, Profile) ->
@@ -149,21 +209,13 @@ rebar_deps_opts(BaseDir) ->
         true ->
             case consult_file(RebarConfig) of
                 {ok, Terms} ->
-                    ErlcOpts = proplists:get_value(erl_opts, Terms, []),
+                    ErlcOpts = rebar_erl_opts(proplists:get_value(erl_opts, Terms, [])),
 
                     RebarLibDirs = proplists:get_value(lib_dirs, Terms, []),
                     RebarDepsDir = proplists:get_value(deps_dir, Terms, "deps"),
-                    %% keep in sync with Rebar3Dirs in incls_deps_opts/1
-                    Rebar3DepsDir = [
-                        "apps",
-                        "lib",
-                        "_checkouts",
-                        "_build/default/lib",
-                        "_build/test/lib"
-                    ],
                     LocalDirs = RebarLibDirs
                              ++ [RebarDepsDir]
-                             ++ Rebar3DepsDir
+                             ++ ?REBAR3DEPSDIRS
                              ++ proplists:get_all_values(i, ErlcOpts),
 
                     %% try to find recursively configs in parents directories.
@@ -178,6 +230,48 @@ rebar_deps_opts(BaseDir) ->
             end;
         false ->
             rebar_deps_opts(filename:dirname(BaseDir))
+    end.
+
+-spec rebar_erl_opts(Opts) -> Opts when Opts :: [term()].
+rebar_erl_opts(ErlOpts) ->
+    rebar_erl_opts(ErlOpts, []).
+
+-spec rebar_erl_opts(Opts, Opts) -> Opts when Opts :: [term()].
+rebar_erl_opts([], Acc) ->
+    lists:reverse(Acc);
+rebar_erl_opts([{platform_define, ArchRegex, Key} | ErlOpts], Acc) ->
+    rebar_erl_opts(ErlOpts,
+        case is_arch(ArchRegex) of
+            true -> [{d, Key} | Acc];
+            false -> Acc
+        end);
+rebar_erl_opts([{platform_define, ArchRegex, Key, Value} | ErlOpts], Acc) ->
+    rebar_erl_opts(ErlOpts,
+        case is_arch(ArchRegex) of
+            true -> [{d, Key, Value} | Acc];
+            false -> Acc
+        end);
+rebar_erl_opts([ErlOpt | ErlOpts], Acc) ->
+    rebar_erl_opts(ErlOpts, [ErlOpt | Acc]).
+
+-spec is_arch(ArchRegex :: string()) -> boolean().
+is_arch(ArchRegex) ->
+    re:run(get_arch(), ArchRegex, [{capture, none}]) =:= match.
+
+-spec get_arch() -> string().
+get_arch() ->
+    erlang:system_info(otp_release) ++ "-"
+        ++ erlang:system_info(system_architecture) ++ "-"
+        ++ wordsize().
+
+-spec wordsize() -> string().
+wordsize() ->
+    try erlang:system_info({wordsize, external}) of
+        Val ->
+            integer_to_list(8 * Val)
+    catch
+        error:badarg ->
+            integer_to_list(8 * erlang:system_info(wordsize))
     end.
 
 erlangmk_deps_opts(BaseDir, Profile) ->

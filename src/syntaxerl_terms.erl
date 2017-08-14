@@ -4,7 +4,7 @@
 -behaviour(syntaxerl).
 
 -export([
-    check_syntax/2,
+    check_syntax/3,
     output_error/1,
     output_warning/1
 ]).
@@ -15,7 +15,7 @@
 %% API
 %% ===================================================================
 
-check_syntax(FileName, _Debug) ->
+check_syntax(FileName, _BaseFileName, _Debug) ->
     case file:eval(FileName) of
         ok ->
             {ok, []};

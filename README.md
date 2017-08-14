@@ -157,3 +157,15 @@ Then add
 to your vimrc.
 
 Thanks [locojay](https://github.com/locojay) for that.
+
+#### ALE
+
+Install [ALE](https://github.com/w0rp/ale) plugin for vim 8+ or neovim.
+
+To disable erlc linter please add the following lines to your vimrc:
+
+```
+let g:ale_linters = {
+\   'erlang': ['syntaxerl'],
+\}
+```

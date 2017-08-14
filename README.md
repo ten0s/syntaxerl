@@ -7,9 +7,9 @@ SyntaxErl is a syntax checker tool for Erlang. The syntax checker currently
 supports erlang source files (.erl), erlang header files (.hrl), erlang configs
 (.config, .rel, .script, .app, .app.src), escript files (.erl, .escript, .es),
 leex files (.xrl), and yecc files (.yrl). Its main purpose is to be used by tools
-like Emacs's flymake http://www.emacswiki.org/emacs/FlymakeErlang and Vim's
-syntastic https://github.com/scrooloose/syntastic.
-
+like Emacs's [Flymake](https://github.com/ten0s/syntaxerl#flymake) and Vim's
+[Syntastic](https://github.com/ten0s/syntaxerl#syntastic) or
+[ALE](https://github.com/ten0s/syntaxerl#ale).
 
 SyntaxErl uses [rebar](https://github.com/rebar/rebar),
 [rebar3](https://github.com/erlang/rebar3) or [erlang.mk](https://erlang.mk)

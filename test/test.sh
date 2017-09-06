@@ -11,28 +11,30 @@ function check() {
     local predicate="$4"
     local pattern="$5"
 
-    echo -en "${file}\t"
+    printf "%s\t" "${file}"
 
     output=$(${SYNTAXERL} ${SCRIPT_DIR}/${file})
     ret=$?
-    echo -n code: ${code}/${ret} " "
+    printf "code: %s/%s " "${code}" "${ret}"
 
     if [[ ${ret} == ${code} && ${predicate} == "w/" && ${pattern} == "" ]]; then
-        echo -e "\e[32mOK\e[0m"
+        printf "\e[32mOK\e[0m\n"
     elif [[ ${ret} == ${code} ]]; then
         echo ${output} | grep "${pattern}" > /dev/null
         ret2=$?
-        echo -n grep: ${ret2} " "
+        printf "grep: %s " "${ret2}"
         if [[ ${ret2} == 0 && "${predicate}" == "w/" ]]; then
-            echo -e "\e[32mOK\e[0m"
+            printf "\e[32mOK\e[0m\n"
         elif [[ ${ret2} == 1 && "${predicate}" == "w/o" ]]; then
-            echo -e "\e[32mOK\e[0m"
+            printf "\e[32mOK\e[0m\n"
         else
-            echo -e "\e[31mFAIL\e[0m"
+            printf "\e[31mFAIL\e[0m\n"
+            printf "\tOutput: %s\n" "${output}" >&2
             EXIT=1
         fi
     else
-        echo -e "\e[31mFAIL\e[0m"
+        printf "\e[31mFAIL\e[0m\n"
+        printf "\tOutput: %s\n" "${output}" >&2
         EXIT=1
     fi
 }

@@ -72,4 +72,6 @@ check projects/rebar3-apps/apps/app1/src/subdir/subsrc.erl code 0 w/ ""
 check projects/rebar3-apps/_build/default/lib/lib2/src/src.erl code 0 w/ ""
 check projects/rebar3-apps/apps/app1/src/types.erl code 0 w/ ""
 
+check projects/rebar3-apps/apps/app1/src/include.erl code 1 w/ "bad.hrl:1: badly formed 'define'"
+
 exit ${EXIT}

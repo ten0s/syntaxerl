@@ -44,18 +44,20 @@ check_syntax(FileName, BaseFileName, Debug) ->
                         {ok, _ModuleName} ->
                             {ok, []};
                         {ok, _ModuleName, Warnings} ->
-                            io:format("Warnings: ~p~n", [Warnings]),
+                            Warnings0 = fix_file_names(NewFileName, FileName, Warnings),
                             {ok, syntaxerl_format:format_warnings(
-                                    ?MODULE, fix_line_numbers(Warnings))};
+                                    ?MODULE, fix_line_numbers(Warnings0))};
                         {error, Errors, Warnings} ->
+                            Errors0 = fix_file_names(NewFileName, FileName, Errors),
+                            Warnings0 = fix_file_names(NewFileName, FileName, Warnings),
                             case syntaxerl_format:format_errors(
-                                    ?MODULE, fix_line_numbers(Errors)) of
+                                    ?MODULE, fix_line_numbers(Errors0)) of
                                 [] ->
                                     {ok, syntaxerl_format:format_warnings(
-                                            ?MODULE, fix_line_numbers(Warnings))};
+                                            ?MODULE, fix_line_numbers(Warnings0))};
                                 Errors2 ->
                                     {error, Errors2 ++ syntaxerl_format:format_warnings(
-                                        ?MODULE, fix_line_numbers(Warnings))}
+                                        ?MODULE, fix_line_numbers(Warnings0))}
                             end
                     end;
                 {error, Reason} ->
@@ -72,6 +74,14 @@ output_warning(_) -> true.
 %% ===================================================================
 %% Internal
 %% ===================================================================
+
+fix_file_names(TmpFileName, FileName, ErrorList) ->
+    [fix_file_name(TmpFileName, FileName, Error) || Error <- ErrorList].
+
+fix_file_name(TmpFileName, FileName, {TmpFileName, ErrorList}) ->
+    {FileName, ErrorList};
+fix_file_name(_TmpFileName, _FileName, {FileName, ErrorList}) ->
+    {FileName, ErrorList}.
 
 fix_line_numbers(ErrorList) ->
     ErrorList0 = skip_expected_errors(ErrorList),

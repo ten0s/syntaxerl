@@ -2,11 +2,11 @@ language: erlang
 sudo: false
 script: "make && make test"
 otp_release:
-  - R16B03-1
   - 17.5
   - 18.3
   - 19.3
-  - 20.0
+  - 20.3
+  - 21.3
 notifications:
   email:
     - dm.klionsky@gmail.com

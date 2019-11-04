@@ -3,7 +3,7 @@
 
 -export([
     incls_deps_opts/1,
-    print_issues/2,
+    print_issues/3,
     consult_file/1
 ]).
 
@@ -134,18 +134,16 @@ deps_opts(BaseDir, OtpStdDirs, ErlcStdOpts, Profile) ->
     UniqErlcOpts = uniq(ErlcStdOpts ++ ErlcOpts),
     {UniqDepsDirs, UniqErlcOpts}.
 
--spec print_issues(FileName::file:filename(), Issues::[issue()]) -> ok.
-print_issues(_FileName, []) ->
-    ok;
-print_issues(FileName, [Issue | Issues]) ->
-    print_issue(FileName, Issue),
-    print_issues(FileName, Issues).
+-spec print_issues(FileName::file:filename(), BaseFileName::file:filename(), Issues::[issue()]) -> ok.
+print_issues(OrigFileName, BaseFileName, List) ->
+    List0 = fix_file_names(OrigFileName, BaseFileName, List),
+    lists:foreach(fun print_issue/1, List0).
 
-print_issue(FileName, {warning, Line, Description}) ->
+print_issue({warning, FileName, Line, Description}) ->
     io:format("~s:~p: warning: ~s~n", [FileName, Line, Description]);
-print_issue(FileName, {error, Description}) ->
+print_issue({error, FileName, Description}) ->
     io:format("~s:~s~n", [FileName, Description]);
-print_issue(FileName, {error, Line, Description}) ->
+print_issue({error, FileName, Line, Description}) ->
     io:format("~s:~p: ~s~n", [FileName, Line, Description]).
 
 -spec consult_file(file:filename()) -> {ok, term()} | {error, error()}.
@@ -442,6 +440,14 @@ try_consult(File) ->
         {error, Reason} ->
             syntaxerl_logger:debug(true, "Failed to read config file ~s: ~p~n", [File, Reason])
     end.
+
+fix_file_names(FileName, BaseFileName, ErrorList) ->
+    [fix_file_name(FileName, BaseFileName, Error) || Error <- ErrorList].
+
+fix_file_name(FileName, BaseFileName, {Type, FileName, Line, Description}) ->
+    {Type, BaseFileName, Line, Description};
+fix_file_name(_TmpFileName, _FileName, Issue) ->
+    Issue.
 
 bs(Vars) ->
     lists:foldl(fun({K,V}, Bs) ->

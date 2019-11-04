@@ -43,24 +43,27 @@ check_syntax(FileName, BaseFileName, Debug) ->
                         {ok, _ModuleName} ->
                             {ok, []};
                         {ok, _ModuleName, Warnings} ->
+                            Warnings0 = fix_file_names(NewFileName, FileName, Warnings),
                             {ok, syntaxerl_format:format_warnings(
-                                    ?MODULE, fix_line_numbers(Warnings))};
+                                    ?MODULE, fix_line_numbers(Warnings0))};
                         {error, Errors, Warnings} ->
+                            Errors0 = fix_file_names(NewFileName, FileName, Errors),
+                            Warnings0 = fix_file_names(NewFileName, FileName, Warnings),
                             case syntaxerl_format:format_errors(
-                                    ?MODULE, fix_line_numbers(Errors)) of
+                                    ?MODULE, fix_line_numbers(Errors0)) of
                                 [] ->
                                     {ok, syntaxerl_format:format_warnings(
-                                            ?MODULE, fix_line_numbers(Warnings))};
+                                            ?MODULE, fix_line_numbers(Warnings0))};
                                 Errors2 ->
                                     {error, Errors2 ++ syntaxerl_format:format_warnings(
-                                        ?MODULE, fix_line_numbers(Warnings))}
+                                        ?MODULE, fix_line_numbers(Warnings0))}
                             end
                     end;
                 {error, Reason} ->
-                    {error, [{error, file:format_error(Reason)}]}
+                    {error, [{FileName, file:format_error(Reason)}]}
             end;
         {error, Reason} ->
-            {error, [{error, file:format_error(Reason)}]}
+            {error, [{FileName, file:format_error(Reason)}]}
     end.
 
 %% skip errors that might occur in pure header files.
@@ -75,6 +78,15 @@ output_warning(_) -> true.
 %% ===================================================================
 %% Internal
 %% ===================================================================
+
+fix_file_names(TmpFileName, FileName, ErrorList) ->
+    [fix_file_name(TmpFileName, FileName, Error) || Error <- ErrorList].
+
+fix_file_name(TmpFileName, FileName, {TmpFileName, ErrorList}) ->
+    {FileName, ErrorList};
+fix_file_name(_TmpFileName, _FileName, {FileName, ErrorList}) ->
+    {FileName, ErrorList}.
+
 
 fix_line_numbers(ErrorList) ->
     [{F, [{fix_line_number(L), M, E} || {L, M, E} <- Es]}

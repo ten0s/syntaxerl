@@ -71,10 +71,10 @@ check_syntax(FileName, BaseFileName, Debug) ->
     syntaxerl_logger:debug(Debug, "Selected handler: ~p", [Handler]),
     case Handler:check_syntax(FileName, BaseFileName, Debug) of
         {ok, Issues} ->
-            syntaxerl_utils:print_issues(FileName, Issues),
+            syntaxerl_utils:print_issues(BaseFileName, FileName, Issues),
             halt(?EXIT_SUCCESS);
         {error, Issues} ->
-            syntaxerl_utils:print_issues(FileName, Issues),
+            syntaxerl_utils:print_issues(BaseFileName, FileName, Issues),
             halt(?EXIT_FAILURE)
     end.
 

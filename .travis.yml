@@ -1,6 +1,9 @@
 language: erlang
 sudo: false
-script: "make && make test"
+before_script: make
+script:
+  - make dialyze
+  - make test
 otp_release:
   - 17.5
   - 18.3

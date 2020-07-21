@@ -12,6 +12,7 @@
         {[{suffix, ".escript"}]     , syntaxerl_escript},
         {[{suffix, ".es"}]          , syntaxerl_escript},
         {[{suffix, ".erl"}, shebang], syntaxerl_escript},
+        {[shebang]                  , syntaxerl_escript},
         {[{suffix, ".erl"}]         , syntaxerl_erl},
         {[{suffix, ".xrl"}]         , syntaxerl_xrl},
         {[{suffix, ".yrl"}]         , syntaxerl_yrl},

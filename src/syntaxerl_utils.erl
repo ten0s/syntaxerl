@@ -148,7 +148,7 @@ print_issue(FileName, {error, Description}) ->
 print_issue(FileName, {error, Line, Description}) ->
     io:format("~s:~p: ~s~n", [FileName, Line, Description]).
 
--spec consult_file(file:filename()) -> {ok, term()} | {error, error()}.
+-spec consult_file(file:filename()) -> {ok, term()} | {error, term()}.
 consult_file(File) ->
     case filename:extension(File) of
         ".script" ->

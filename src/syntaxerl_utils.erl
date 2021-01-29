@@ -38,7 +38,6 @@ incls_deps_opts(FileName) ->
         warn_deprecated_function,
         warn_exported_vars,
         warn_bif_clash,
-        warn_unused_import,
         warn_unused_function,
         warn_unused_variable,
         warn_unused_vars,

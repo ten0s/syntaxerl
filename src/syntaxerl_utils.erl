@@ -29,6 +29,11 @@ incls_deps_opts(FileName) ->
     ProjectDir = projectdir(AppDir),
     StdOtpDirs = include_dirs(AbsFileName, AppDir, ProjectDir),
     StdErlcOpts = [
+        %% Since OTP 24 compiler warnings and errors include column numbers in
+        %% addition to line numbers by default.  We are not ready for this yet.
+        %% The following option is ignored by older OTP releases.
+        {error_location, line},
+
         strong_validation,
 
         {warn_format, 1},

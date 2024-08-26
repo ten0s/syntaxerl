@@ -1,6 +1,6 @@
 .PHONY: doc test
 
-REBAR3=./rebar3
+REBAR3=rebar3
 
 all: escriptize
 
